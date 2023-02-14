@@ -1,5 +1,4 @@
 import {ApiProperty, PartialType } from "@nestjs/swagger";
-import { CreateClient } from "./createClient.dto";
 
 export class Client{
     @ApiProperty({required: false})

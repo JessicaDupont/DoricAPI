@@ -2,8 +2,8 @@ import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { Get } from '@nestjs/common/decorators';
 import { ApiTags } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
-import { ConnectClient } from './dto/connectClient.dto';
-import { CreateClient } from './dto/createClient.dto';
+import { ConnectClient } from './models/connectClient.model';
+import { CreateClient } from './models/createClient.model';
 
 @ApiTags('Clients')
 @Controller('clients')

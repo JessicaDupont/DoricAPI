@@ -25,7 +25,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  let port = process.env.PORT || process.env.PORT_LOCAL;
+  let port = process.env.PORT ?? process.env.PORT_LOCAL;
   console.log("http://localhost:"+port);
   console.log("Entrée api (swagger) : http://localhost:"+port+"/api");
   console.log("Documentation swagger.json : http://localhost:"+port+"/api-json");

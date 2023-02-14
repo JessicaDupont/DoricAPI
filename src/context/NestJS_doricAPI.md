@@ -66,6 +66,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 ```
 > après le `run start`, swagger est disponible sur [http://localhost:3000/api](http://localhost:3000/api). Le document Swagger est disponible [http://localhost:3000/api-json](http://localhost:3000/api-json)
 # Connexion à la DB MySQL
+1. `npm i --save @nestjs/sequelize sequelize sequelize-typescript mysql2`
+2. `npm i --save-dev @types/sequelize`
 ## Clients (exemple)
 1. `nest g module clients`
 2. les classes DTO

@@ -4,8 +4,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './security/auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
-import env from './context/env';
 import { JwtModule } from '@nestjs/jwt';
+import env from './context/env';
 
 @Module({
   imports: [
