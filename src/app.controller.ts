@@ -1,20 +1,35 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Request} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
+import { AuthService } from './security/auth/auth.service';
 
 @ApiTags('Tests')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private configService: ConfigService) {}
+  constructor(
+    private readonly appService: AppService//, 
+    // private configService: ConfigService,
+    // private authService: AuthService
+  ) {}
   
-  @Get('hello')
+  // @UseGuards(AuthGuard)
+  //   @Post('auth/login')
+  //   async login(@Request() req) {
+  //       return this.authService.login(req.user);
+  //   }
+
+  @Get()
   getHello(): string {
-    return this.appService.getHello(this.configService.get<number>('port'));
+    let port = process.env.PORT || process.env.PORT_LOCAL;
+    return this.appService.getHello(parseInt(port, 10));//this.configService.get<number>('port'));
   }
 
   @Get('testAuth')
+  @ApiBasicAuth()
   getTestAuth(): string {
-    return this.appService.getHello(this.configService.get<number>('port'));
+    let port = process.env.PORT || process.env.PORT_LOCAL;
+    return this.appService.getHello(parseInt(port, 10));
   }
 }

@@ -9,8 +9,16 @@ async function bootstrap() {
     .setTitle('DoricAPI')
     .setDescription('API fournissant les informations sur Dorica RPG')
     .setVersion('1.0')
-    .setContact("Jessica Dupont", "http://alagaesiAPI.jessicadupont.be", "contact@jessicadupont.be")
-    .addBasicAuth({type: 'apiKey', name: 'dorica-API-key', in: 'header'})
+    .setContact(
+      "Jessica Dupont", 
+      "http://alagaesiAPI.jessicadupont.net", 
+      "contact@jessicadupont.net"
+    )
+    .addBasicAuth({
+      type: 'apiKey', 
+      name: 'dorica-API-key', 
+      in: 'header'
+    })
     .addTag('Clients', "Clients de l'API")
     .addTag('Tests', "Tests en pagaille")
     .build();
