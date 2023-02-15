@@ -1,24 +1,77 @@
-import {ApiProperty, PartialType } from "@nestjs/swagger";
+import {ApiProperty} from "@nestjs/swagger";
+import { IsEmail, IsNotEmpty } from "class-validator";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+@Entity({name: "admin_api_clients"})
 export class Client{
-    @ApiProperty({required: false})
-    client_id: number;
+    @PrimaryGeneratedColumn({
+        type: "int",
+        name: "client_id"
+    })
+    @ApiProperty({
+        required: false
+    })
+    clientId: number;
 
-    @ApiProperty({required: false})
+    @CreateDateColumn()
+    @ApiProperty({
+        required: false,
+        format: "date"
+    })
     inscription: string;
-
-    @ApiProperty({required: false})
-    last_connexion: string;
-
-    @ApiProperty({required: false})
+    
+    @Column({
+        type: "date",
+        name: "last_connexion"
+    })
+    @ApiProperty({
+        required: false,
+        format: "date"
+    })
+    lastConnexion: string;
+    
+    @Column({
+        type: "varchar",
+        length: 250,
+        nullable: true
+    })
+    @ApiProperty({
+        required: false,
+        pattern: "^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/",
+        example: "http://www.example.com"
+    })
     url: string;
-
-    @ApiProperty({required: false})
+    
+    @Column({
+        type: "varchar",
+        length: 100
+    })
+    @ApiProperty({
+        required: false
+    })
     name: string;
-
-    @ApiProperty({required: true})
+    
+    @IsEmail()
+    @IsNotEmpty()
+    @Column({
+        type: "varchar",
+        length: 255,
+        unique: true
+    })
+    @ApiProperty({
+        required: true,
+        format: "email",
+        pattern: "^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+    })
     email: string;
-
-    @ApiProperty({required: true})
+    
+    @IsNotEmpty()
+    @Column({
+        type: "varchar",
+        length: 255
+    })
+    @ApiProperty({
+        required: true
+    })
     password: string;
 }

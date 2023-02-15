@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule } from 'src/clients/clients.module';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from '../strategy/local.strategy';
+import { LocalStrategy } from './strategy/local.strategy';
 
 @Module({
   imports: [
