@@ -21,7 +21,8 @@ export class ClientsController {
     @ApiResponse({status: 418, description: "Email déjà enregistré."})
     async inscription(@Body() client:CreateClient, @Res() response){
         if(Format.validateEmail(client.email)){
-            if(!this.clientsService.existEmail(client.email)){
+            let exist = await this.clientsService.existEmail(client.email)
+            if(!exist){
                 client.password = await Crypt.securePassword(client.password);
                 this.clientsService.create(client);
                 return response.status(201).send({message: "vous avez bien été enregistré."});

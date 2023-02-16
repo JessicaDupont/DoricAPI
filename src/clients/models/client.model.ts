@@ -1,9 +1,10 @@
-import {ApiProperty} from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsDate, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl } from "class-validator";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: "admin_api_clients"})
 export class Client{
+    @IsInt()
     @PrimaryGeneratedColumn({
         type: "int",
         name: "client_id"
@@ -13,6 +14,7 @@ export class Client{
     })
     clientId: number;
 
+    @IsDate()
     @CreateDateColumn()
     @ApiProperty({
         required: false,
@@ -20,6 +22,7 @@ export class Client{
     })
     inscription: string;
     
+    @IsDate()
     @Column({
         type: "date",
         name: "last_connexion"
@@ -30,6 +33,7 @@ export class Client{
     })
     lastConnexion: string;
     
+    @IsUrl()
     @Column({
         type: "varchar",
         length: 250,
@@ -42,6 +46,7 @@ export class Client{
     })
     url: string;
     
+    @IsString()
     @Column({
         type: "varchar",
         length: 100

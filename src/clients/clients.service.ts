@@ -29,7 +29,7 @@ export class ClientsService {
           email: email
         }
       })
-        return exist > 0;
+      return exist > 0;
     }
   getOneByEmailPassword(email : string, password: string) : Promise<Client>{
     console.log("je médite...")
