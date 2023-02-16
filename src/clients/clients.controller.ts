@@ -1,7 +1,5 @@
-import { Body, Controller, Post, UseGuards, Request, Res } from '@nestjs/common';
-import { Get } from '@nestjs/common/decorators';
+import { Body, Controller, Post, Get, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { response } from 'express';
 import { Crypt } from 'src/security/secureData/crypt';
 import { Format } from 'src/security/secureData/format';
 import { ClientsService } from './clients.service';
