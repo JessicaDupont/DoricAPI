@@ -19,7 +19,9 @@
         1. [Annotations pour Swagger](#231-annotations-swagger)
     4. [Service](#24-service)
         1. [Relais DB](#241-appels-db)
-3. [Authentification](#3-authentification)
+3. [Sécurité](#3-sécurité)
+    1. [Cacher les données](#31-cryptage-et-hashage)
+    2. [Authentification](#32-authentification)
 
 [:top: Remonter](#nestjs)
 ***
@@ -293,10 +295,6 @@
         inscription(@Body() client:CreateClient, @Res() response){
             return response.status(404).send({message: "Non implémenté"});
         }
-        @Get('connexion')
-        connexion(@Body() client:ConnectClient, @Res() response){
-            return response.status(404).send({message: "Non implémenté"});
-        }
     }
     ```
 ### 2.3.1. Annotations Swagger
@@ -355,16 +353,25 @@
             })
             return exist > 0;
         }
-        getOneByEmailPassword(email : string, password: string) : Promise<Client>{
-            return this.clientRepository.findOne({
-                where: {
-                    email: email,
-                    password: password
-                }
-            })
-        }
     ```
-# 3. Authentification
+# 3. Sécurité
 [:top: Remonter](#nestjs)
-
+## 3.1. Cryptage et Hashage
+1. `npm i bcrypt`
+2. créer le dossier `src/security/secureData`, créer le fichier `crypt.ts`
+    ```ts
+    import * as bcrypt from 'bcrypt';
+    export class Crypt{
+        static async securePassword(password: string): Promise<string> {
+            const saltOrRounds = 10;
+            const hash = await bcrypt.hash(password, saltOrRounds);
+            return hash;
+        }
+    }
+    ```
+## 3.2. Authentification
 [:books: Documentation](https://docs.nestjs.com/security/authentication)
+1. `npm i --save @nestjs/passport passport passport-local`
+2. `npm i --save-dev @types/passport-local` identification par login/password
+3. `npm i --save @nestjs/jwt passport-jwt`
+4. `npm i --save-dev @types/passport-jwt`
