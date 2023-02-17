@@ -18,6 +18,7 @@ export class ClientsController {
     @ApiResponse({status: 406, description: "Email invalide."})
     @ApiResponse({status: 418, description: "Email déjà enregistré."})
     async inscription(@Body() client:CreateClient, @Res() response){
+        console.log("clients.controller.ts/inscription")
         if(Format.validateEmail(client.email)){
             let exist = await this.clientsService.existEmail(client.email)
             if(!exist){
@@ -34,6 +35,7 @@ export class ClientsController {
 
     @Get('connexion')
     connexion(@Body() client:ConnectClient, @Res() response){
+        console.log("clients.controller.ts/connexion")
         if(Format.validateEmail(client.email)){
             return this.clientsService.getOneByEmailPassword(client.email, client.password);
         }else{

@@ -31,6 +31,7 @@ export class ClientsService {
     return exist > 0;
   }
   getOneByEmailPassword(email : string, password: string) : Promise<Client>{
+    console.log("clients.service.ts/getonebyemailpassword")
     return this.clientRepository.findOne({
       where: {
         email: email,

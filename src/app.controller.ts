@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './security/auth/auth.service';
+import { LocalAuthGuard } from './security/auth/strategy/local-auth-guard';
 
 @ApiTags('Tests')
 @Controller()
@@ -14,11 +15,12 @@ export class AppController {
     // private authService: AuthService
   ) {}
   
-  // @UseGuards(AuthGuard)
-  //   @Post('auth/login')
-  //   async login(@Request() req) {
-  //       return this.authService.login(req.user);
-  //   }
+  @UseGuards(AuthGuard('local'))//LocalAuthGuard)
+  @Post('auth/login')
+  async login(@Request() req) {
+    console.log("app.controller.ts/login")
+    return req.user;
+  }
 
   @Get()
   getHello(): string {
