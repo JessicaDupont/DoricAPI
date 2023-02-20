@@ -30,13 +30,30 @@ export class ClientsService {
     })
     return exist > 0;
   }
-  getOneByEmailPassword(email : string, password: string) : Promise<Client>{
-    console.log("clients.service.ts/getonebyemailpassword")
-    return this.clientRepository.findOne({
+  async getOneByEmail(email : string) : Promise<Client>{
+    console.log("clients.service.ts/getonebyemail")
+    let client = await this.clientRepository.findOne({
       where: {
-        email: email,
-        password: password
+        email: email
       }
     })
+    return client;
+  }
+  async patchLastConnexion(client: Client){
+    console.log("clients.service.ts/patchLastConnexion"+Date())
+    let date = new Date()
+    let dateString = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+    let clientMAJ : Client= {
+      clientId: client.clientId,
+      lastConnexion: dateString,
+      inscription: client.inscription,
+      url: client.url,
+      name: client.name,
+      email: client.email,
+      password: client.password
+    }
+    client = await this.clientRepository.preload(clientMAJ);
+    client = await this.clientRepository.save(client);
+    return client ? true : false;
   }
 }
