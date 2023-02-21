@@ -141,7 +141,7 @@
 1. [Validation](#221-validator)
 2. [Types DB](#222-db-typeorm)
 3. [Format Swagger](#223-swagger)
-> Toutes les annotations peuvent être mise sur le même document
+> Toutes les annotations peuvent être mise sur le même document, mais pas conseillé (entité(DAL) vs DTO)
 #### 2.2.1.1. Validator
 [:books: Documentation](https://www.npmjs.com/package/class-validator)
 1. `npm i --save class-validator class-transformer`
@@ -375,3 +375,5 @@
 2. `npm i --save-dev @types/passport-local` identification par login/password
 3. `npm i --save @nestjs/jwt passport-jwt`
 4. `npm i --save-dev @types/passport-jwt`
+5. `nest g module security/auth`
+6. `nest g service security/auth`

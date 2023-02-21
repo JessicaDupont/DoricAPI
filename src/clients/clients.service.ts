@@ -1,49 +1,50 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateClientDTO } from 'src/shared/dto/clients/createClient.dto';
+import { ClientEntity } from 'src/shared/entities/client.entity';
 import { Repository } from 'typeorm';
-import { Client } from './models/client.model';
-import { CreateClient } from './models/createClient.model';
+import { ClientDTO } from '../shared/dto/clients/client.dto';
 
 @Injectable()
 export class ClientsService {
 
   constructor(
-    @InjectRepository(Client) private clientRepository: Repository<Client>
+    @InjectRepository(ClientEntity) private clientRepo: Repository<ClientEntity>
   ) {}
 
-  create(client : CreateClient){
-    let c = this.clientRepository.create({
+  create(client : CreateClientDTO){
+    let c = this.clientRepo.create({
       url: client.url,
       name: client.name,
       email: client.email,
       password: client.password
     });
-    this.clientRepository.save(c);
+    this.clientRepo.save(c);
     return null;
   }
 
   async existEmail(email: string) : Promise<boolean> {
-    let exist = await this.clientRepository.count({
+    let exist = await this.clientRepo.count({
       where: {
         email: email
       }
     })
     return exist > 0;
   }
-  async getOneByEmail(email : string) : Promise<Client>{
+  async getOneByEmail(email : string) : Promise<ClientDTO>{
     console.log("clients.service.ts/getonebyemail")
-    let client = await this.clientRepository.findOne({
+    let client = await this.clientRepo.findOne({
       where: {
         email: email
       }
     })
     return client;
   }
-  async patchLastConnexion(client: Client){
-    console.log("clients.service.ts/patchLastConnexion"+Date())
+  async patchLastConnexion(client: ClientDTO){
+    console.log("clients.service.ts/patchLastConnexion")
     let date = new Date()
     let dateString = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
-    let clientMAJ : Client= {
+    let clientMAJ : ClientDTO= {
       clientId: client.clientId,
       lastConnexion: dateString,
       inscription: client.inscription,
@@ -52,8 +53,8 @@ export class ClientsService {
       email: client.email,
       password: client.password
     }
-    client = await this.clientRepository.preload(clientMAJ);
-    client = await this.clientRepository.save(client);
+    client = await this.clientRepo.preload(clientMAJ);
+    client = await this.clientRepo.save(client);
     return client ? true : false;
   }
 }

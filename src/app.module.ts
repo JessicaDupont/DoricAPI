@@ -5,9 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './security/auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import { JwtModule } from '@nestjs/jwt';
-import env from './context/env';
+import env from './shared/env';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Client } from './clients/models/client.model';
+import { ClientDTO } from './shared/dto/clients/client.dto';
 
 @Module({
   imports: [
@@ -22,14 +22,21 @@ import { Client } from './clients/models/client.model';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [Client],
+      entities: [__dirname + "/**/*.entity.{ts, js}"],
+      autoLoadEntities: true,
       synchronize: true,
+      //logging: "all"//affiche les requetes envoyée en DB dans la console
     }),
-    // AuthModule, 
+    AuthModule, 
     ClientsModule,
-    // JwtModule
+    //JwtModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [
+    AppController
+  ],
+  providers: [
+    AppService,
+    AuthModule 
+  ],
 })
 export class AppModule {}

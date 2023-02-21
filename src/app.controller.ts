@@ -1,34 +1,37 @@
 import { Controller, Get, Post, UseGuards, Request} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiTags, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './security/auth/auth.service';
-import { LocalAuthGuard } from './security/auth/strategy/local-auth-guard';
+import { JwtAuthGuard } from './security/auth/authGuard/jwt-auth.guard';
 
 @ApiTags('Tests')
 @Controller()
 export class AppController {
   constructor(
-    private readonly appService: AppService//, 
+    private readonly appService: AppService, 
     // private configService: ConfigService,
-    // private authService: AuthService
+    //private readonly authService: AuthService
   ) {}
   
-  @UseGuards(AuthGuard('local'))//LocalAuthGuard)
-  @Post('auth/login')
-  async login(@Request() req) {
-    console.log("app.controller.ts/login"+req)
-    return req.user;
-  }
-
+  
+  //@UseGuards(JwtAuthGuard)
+  // @Post('auth/login')
+  // async login(@Request() req) {
+  //   console.log("app.controller.ts/login", req.body)
+  //   let result = this.authService.login(req.body)
+  //   console.log(result);
+  //   return result;
+  // }
+  
   @Get()
   getHello(): string {
     let port = process.env.PORT || process.env.PORT_LOCAL;
     return this.appService.getHello(parseInt(port, 10));//this.configService.get<number>('port'));
   }
-
+  
   @Get('testAuth')
+  @UseGuards(JwtAuthGuard)
   @ApiBasicAuth()
   getTestAuth(): string {
     let port = process.env.PORT || process.env.PORT_LOCAL;

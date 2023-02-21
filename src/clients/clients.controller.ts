@@ -1,58 +1,64 @@
-import { Body, Controller, Post, Get, Res, HttpStatus, Req, Request, Param } from '@nestjs/common';
+import { Body, Controller, Post, Get, Res, HttpStatus, Req, Request, Param, HttpCode, HttpException } from '@nestjs/common';
 import { ApiCreatedResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { AuthService } from 'src/security/auth/auth.service';
 import { Crypt } from 'src/security/secureData/crypt';
 import { Format } from 'src/security/secureData/format';
 import { ClientsService } from './clients.service';
-import { Client } from './models/client.model';
-import { ConnectClient } from './models/connectClient.model';
-import { CreateClient } from './models/createClient.model';
+import { ClientDTO } from '../shared/dto/clients/client.dto';
+import { CreateClientDTO } from 'src/shared/dto/clients/createClient.dto';
+import { ConnectClientDTO } from 'src/shared/dto/clients/connectClient.dto';
+import { ErrorMessage, ErrorStatus } from 'src/shared/utilities/error.fr.enum';
+import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.enum';
+import { TokenDTO } from 'src/shared/dto/clients/token.dto';
 
 @ApiTags('Clients')
 @Controller('clients')
 export class ClientsController {
     constructor(
-        private readonly clientsService: ClientsService
+        private readonly clientsService: ClientsService,
+        private readonly authService: AuthService
     ){}
     
     @Post('inscription')
-    @ApiCreatedResponse({status: 201, description: "Le client a bien été enregistré."})
-    @ApiResponse({status: 406, description: "Email invalide."})
-    @ApiResponse({status: 418, description: "Email déjà enregistré."})
-    async inscription(@Body() client:CreateClient, @Res() res:Response){
+    @ApiCreatedResponse({status: SuccessStatut.USER_CREATED, description: SuccessMessage.USER_CREATED})
+    @ApiResponse({status: ErrorStatus.USER_EXIST, description: ErrorMessage.USER_EXIST})
+    @ApiResponse({status: ErrorStatus.EMAIL_INVALIDE, description: ErrorMessage.EMAIL_INVALIDE})
+    async inscription(@Body() client:CreateClientDTO){
         console.log("clients.controller.ts/inscription")
         if(Format.validateEmail(client.email)){
             let exist = await this.clientsService.existEmail(client.email)
             if(!exist){
                 client.password = await Crypt.securePassword(client.password);
                 this.clientsService.create(client);
-                return res.status(201).send({message: "vous avez bien été enregistré."});
+                throw new HttpException(SuccessMessage.USER_CREATED, SuccessStatut.USER_CREATED)
             }else{
-                return res.status(418).send({message: "L'adresse email est déjà enregistrée."});
+                throw new HttpException(ErrorMessage.USER_EXIST, ErrorStatus.USER_EXIST)
             }
         }else{
-            return res.status(406).send({message: "Format d'email invalide"});
+            throw new HttpException(ErrorMessage.EMAIL_INVALIDE, ErrorStatus.EMAIL_INVALIDE)
         }
     }
 
     @Post('connexion')
-    @ApiResponse({status: HttpStatus.NOT_FOUND, description: "Cette adresse email n'est pas enregistrée"})
-    @ApiResponse({status: HttpStatus.NOT_ACCEPTABLE, description: "Format d'email invalide"})
-    async connexion(@Body() client:ConnectClient, @Res() res:Response){
+    @ApiResponse({status: ErrorStatus.USER_NOT_FOUND, description: ErrorMessage.USER_NOT_FOUND})
+    @ApiResponse({status: ErrorStatus.EMAIL_INVALIDE, description: ErrorMessage.EMAIL_INVALIDE})
+    async connexion(@Body() client:ConnectClientDTO) : Promise<TokenDTO>{
         console.log("clients.controller.ts/connexion")
         let email = client.email;
         let password = client.password;
         if(Format.validateEmail(email)){
-            let user : Client = await this.clientsService.getOneByEmail(email)
+            let user : ClientDTO = await this.clientsService.getOneByEmail(email)
             if(Crypt.compare(password, user.password)){
-                await this.clientsService.patchLastConnexion(user);
                 user.password = "secret";
-                return res.status(HttpStatus.ACCEPTED).json(user);
+                await this.clientsService.patchLastConnexion(user);
+                let token = await this.authService.login(user);
+                return token;
             }else{
-                return res.status(HttpStatus.NOT_FOUND).send({message: "Email inconnu"});
+                throw new HttpException(ErrorMessage.USER_NOT_FOUND, ErrorStatus.USER_NOT_FOUND)
             }
         }else{
-            return res.status(HttpStatus.NOT_ACCEPTABLE).send({message: "Format d'email invalide"});
+            throw new HttpException(ErrorMessage.EMAIL_INVALIDE, ErrorStatus.EMAIL_INVALIDE)
         }
     }
 }
