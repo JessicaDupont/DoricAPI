@@ -1,15 +1,13 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { LifeTime } from "./bases/lifeTime.entity";
 
 @Entity({name: "admin_api_clients"})
-export class ClientEntity{
+export class ClientEntity extends LifeTime{
     @PrimaryGeneratedColumn({
         type: "int",
         name: "client_id"
     })
     clientId: number;
-
-    @CreateDateColumn()
-    inscription: string;
     
     @Column({
         type: "date",
@@ -19,7 +17,7 @@ export class ClientEntity{
     
     @Column({
         type: "varchar",
-        length: 250,
+        length: 2000,
         nullable: true
     })
     url: string;
