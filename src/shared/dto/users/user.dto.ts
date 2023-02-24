@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsDefined, IsEmail, IsInt, IsNotEmpty, IsString, IsStrongPassword, IsUrl, Length, MaxLength, MinLength, minLength } from "class-validator";
 
-export class ClientDTO{
+export class UserDTO{
     @IsInt()
     @IsDefined()
     @ApiProperty({
         required: false
     })
-    clientId: number;
+    userId: number;
     
     @IsDate()
     @ApiProperty({

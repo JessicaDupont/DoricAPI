@@ -1,13 +1,13 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { LifeTime } from "./bases/lifeTime.entity";
 
-@Entity({name: "admin_api_clients"})
-export class ClientEntity extends LifeTime{
+@Entity({name: "admin_api_users"})
+export class UserEntity extends LifeTime{
     @PrimaryGeneratedColumn({
         type: "int",
-        name: "client_id"
+        name: "user_id"
     })
-    clientId: number;
+    userId: number;
     
     @Column({
         type: "date",

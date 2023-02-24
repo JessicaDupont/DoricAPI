@@ -1,8 +1,8 @@
 import { IntersectionType, PartialType, PickType } from "@nestjs/swagger";
 import { IsString } from "class-validator";
-import { ClientDTO } from "./client.dto";
+import { UserDTO } from "./user.dto";
 import { TokenDTO } from "./token.dto";
 
-export class ChangePasswordClientDTO extends IntersectionType(
-    PickType(ClientDTO, ['password']),
+export class ChangePasswordUserDTO extends IntersectionType(
+    PickType(UserDTO, ['password']),
 ){}

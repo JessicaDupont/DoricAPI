@@ -19,7 +19,7 @@ async function bootstrap() {
       name: 'dorica-API-key', 
       in: 'header'
     })
-    .addTag('Clients', "Clients de l'API")
+    .addTag('Users', "Utilisateurs de l'API")
     .addTag('Tests', "Tests en pagaille")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

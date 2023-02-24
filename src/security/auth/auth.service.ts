@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ClientsService } from '../../clients/clients.service';
+import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { ClientDTO } from 'src/shared/dto/clients/client.dto';
+import { UserDTO } from 'src/shared/dto/users/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,15 +9,15 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
   
-  async login(user: ClientDTO) {
+  async login(user: UserDTO) {
     console.log("auth.service.ts/login")
-    const payload = { sub: user.clientId };
+    const payload = { sub: user.userId };
     return {
       token: this.jwtService.sign(payload),
     };
   }
-  getClientId(token: string): number {
-    console.log("auth.service.ts/getclientid")
+  getUserId(token: string): number {
+    console.log("auth.service.ts/getuserid")
     let res = this.jwtService.decode(token)
     return res.sub;
   }

@@ -1,35 +1,35 @@
 import { Body, Controller, Post, Headers, Get, Res, HttpStatus, Req, Request, Param, HttpCode, HttpException, ValidationPipe, Patch } from '@nestjs/common';
 import { ApiCreatedResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ClientsService } from './clients.service';
-import { CreateClientDTO } from 'src/shared/dto/clients/createClient.dto';
-import { ConnectClientDTO } from 'src/shared/dto/clients/connectClient.dto';
+import { UsersService } from './users.service';
+import { CreateUserDTO } from 'src/shared/dto/users/create.user.dto';
+import { ConnexionUserDTO } from 'src/shared/dto/users/connexion.user.dto';
 import { ErrorMessage, ErrorStatus } from 'src/shared/utilities/error.fr.enum';
 import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.enum';
-import { TokenDTO } from 'src/shared/dto/clients/token.dto';
-import { ChangePasswordClientDTO } from 'src/shared/dto/clients/changePasswordClient.dto';
+import { TokenDTO } from 'src/shared/dto/users/token.dto';
+import { ChangePasswordUserDTO } from 'src/shared/dto/users/changePassword.user.dto';
 
-@ApiTags('Clients')
-@Controller('clients')
-export class ClientsController {
+@ApiTags('Users')
+@Controller('users')
+export class UsersController {
     constructor(
-        private readonly clientsService: ClientsService
+        private readonly usersService: UsersService
     ){}
     
     @Post('inscription')
     @ApiCreatedResponse({status: SuccessStatut.USER_CREATED, description: SuccessMessage.USER_CREATED})
     @ApiResponse({status: ErrorStatus.USER_EXIST, description: ErrorMessage.USER_EXIST})
     @ApiResponse({status: ErrorStatus.EMAIL_INVALIDE, description: ErrorMessage.EMAIL_INVALIDE})
-    async inscription(@Body(ValidationPipe) client:CreateClientDTO){
-        console.log("clients.controller.ts/inscription")
-        return this.clientsService.inscription(client);
+    async inscription(@Body(ValidationPipe) user:CreateUserDTO){
+        console.log("users.controller.ts/inscription")
+        return this.usersService.inscription(user);
     }
 
     @Post('connexion')
     @ApiResponse({status: ErrorStatus.USER_NOT_FOUND, description: ErrorMessage.USER_NOT_FOUND})
     @ApiResponse({status: ErrorStatus.EMAIL_INVALIDE, description: ErrorMessage.EMAIL_INVALIDE})
-    async connexion(@Body(ValidationPipe) client:ConnectClientDTO) : Promise<TokenDTO>{
-        console.log("clients.controller.ts/connexion");
-        return this.clientsService.connexion(client);
+    async connexion(@Body(ValidationPipe) user:ConnexionUserDTO) : Promise<TokenDTO>{
+        console.log("users.controller.ts/connexion");
+        return this.usersService.connexion(user);
     }
 
     /**
@@ -40,9 +40,9 @@ export class ClientsController {
     @Patch('changePassword')
     changePassword(
         @Headers() token : TokenDTO,
-        @Body(ValidationPipe) password:ChangePasswordClientDTO
+        @Body(ValidationPipe) password:ChangePasswordUserDTO
     ){
-        console.log("clients.controller.ts/changePassword");
-        return this.clientsService.changePassword(token, password)
+        console.log("users.controller.ts/changePassword");
+        return this.usersService.changePassword(token, password)
     }
 }

@@ -3,11 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './security/auth/auth.module';
-import { ClientsModule } from './clients/clients.module';
+import { UsersModule } from './users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import env from './shared/env';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientDTO } from './shared/dto/clients/client.dto';
+import { UserDTO } from './shared/dto/users/user.dto';
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { ClientDTO } from './shared/dto/clients/client.dto';
       //logging: "all"//affiche les requetes envoyée en DB dans la console
     }),
     AuthModule, 
-    ClientsModule,
+    UsersModule,
     //JwtModule
   ],
   controllers: [
