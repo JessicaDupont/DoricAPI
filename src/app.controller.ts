@@ -3,7 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { ApiTags, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './security/auth/auth.service';
-import { JwtAuthGuard } from './security/auth/authGuard/jwt-auth.guard';
+import { JwtAuthGuard } from './security/auth/jwt/jwt-auth.guard';
+import { PORT } from './shared/env';
 
 @ApiTags('Tests')
 @Controller()
@@ -26,15 +27,13 @@ export class AppController {
   
   @Get()
   getHello(): string {
-    let port = process.env.PORT || process.env.PORT_LOCAL;
-    return this.appService.getHello(parseInt(port, 10));//this.configService.get<number>('port'));
+    return this.appService.getHello(parseInt(PORT, 10));//this.configService.get<number>('port'));
   }
   
   @Get('testAuth')
   @UseGuards(JwtAuthGuard)
   @ApiBasicAuth()
   getTestAuth(): string {
-    let port = process.env.PORT || process.env.PORT_LOCAL;
-    return this.appService.getHello(parseInt(port, 10));
+    return this.appService.getHello(parseInt(PORT, 10));
   }
 }

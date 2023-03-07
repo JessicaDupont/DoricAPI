@@ -38,7 +38,7 @@
 3. `nest new doricAPI`
     - `npm`
 4. `cd doric-api`
-5. `npm run strat:dev` : app lancée sur [http://localhost:3000]()
+5. `npm run start:dev` : app lancée sur [http://localhost:3000]()
 6. `ctrl`+`c` : arrter le programme
 ## 1.2. Git
 [Github.com : JessicaDupont/DoricAPI](https://github.com/JessicaDupont/DoricAPI)

@@ -3,6 +3,9 @@ import { IsString } from "class-validator";
 import { UserDTO } from "./user.dto";
 import { TokenDTO } from "./token.dto";
 
-export class ChangePasswordUserDTO extends IntersectionType(
-    PickType(UserDTO, ['password']),
+export class ChangePasswordUserDTO extends PickType(
+    UserDTO, 
+    [
+        'password'
+    ]
 ){}
