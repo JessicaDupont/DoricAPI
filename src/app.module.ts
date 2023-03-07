@@ -8,13 +8,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { DOTENV } from './shared/dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserDTO } from './shared/dto/users/user.dto';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { MailModule } from './shared/mail/mail.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env', '/.env', '../.env', '../../.env']
-    }), 
+    // ConfigModule.forRoot({
+    //   isGlobal: true,
+    //   envFilePath: ['.env', '/.env', '../.env', '../../.env']
+    // }), 
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: DOTENV.DB.host,
@@ -29,7 +32,7 @@ import { UserDTO } from './shared/dto/users/user.dto';
     }),
     AuthModule, 
     UsersModule,
-    //JwtModule
+    MailModule
   ],
   controllers: [
     AppController

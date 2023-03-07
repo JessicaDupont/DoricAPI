@@ -11,12 +11,15 @@ import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.e
 import { Repository } from 'typeorm';
 import { UserDTO } from '../shared/dto/users/user.dto';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/shared/mail/mail.service';
+import { Message } from 'src/shared/utilities/message.fr.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity) private usersRepo: Repository<UserEntity>,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly mailService: MailService
   ) {}
     
   async inscription(user : CreateUserDTO){
@@ -28,6 +31,8 @@ export class UsersService {
     user.password = await bcrypt.hash(user.password, 10);
     let newUser = this.usersRepo.create(user);
     
+    await this.mailService.sendNoReply(user.email, Message.MAIL_SUBJECT_REGISTER, Message.MAIL_TEXT_REGISTER, Message.MAIL_HTML_REGISTER)
+
     this.usersRepo.save(newUser)
     .catch(_ => {
       throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)

@@ -54,7 +54,8 @@ export class UserDTO{
         minSymbols : 1
     })
     @ApiProperty({
-        required: true
+        required: true,
+        example: "123stringSTRING/*-"
     })
     password: string;
 }
