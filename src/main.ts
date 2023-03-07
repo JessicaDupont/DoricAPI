@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { PORT } from './shared/env';
+import { DOTENV } from './shared/dotenv';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,9 +26,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  console.log("http://localhost:"+PORT);
-  console.log("Entrée api (swagger) : http://localhost:"+PORT+"/api");
-  console.log("Documentation swagger.json : http://localhost:"+PORT+"/api-json");
-  await app.listen(PORT);
+  console.log("http://localhost:"+DOTENV.port);
+  console.log("Entrée api (swagger) : http://localhost:"+DOTENV.port+"/api");
+  console.log("Documentation swagger.json : http://localhost:"+DOTENV.port+"/api-json");
+  await app.listen(DOTENV.port);
 }
 bootstrap();

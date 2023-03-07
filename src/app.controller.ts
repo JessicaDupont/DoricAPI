@@ -4,7 +4,7 @@ import { ApiTags, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './security/auth/auth.service';
 import { JwtAuthGuard } from './security/auth/jwt/jwt-auth.guard';
-import { PORT } from './shared/env';
+import { DOTENV } from './shared/dotenv';
 
 @ApiTags('Tests')
 @Controller()
@@ -27,13 +27,18 @@ export class AppController {
   
   @Get()
   getHello(): string {
-    return this.appService.getHello(parseInt(PORT, 10));//this.configService.get<number>('port'));
+    return this.appService.getHello(parseInt(DOTENV.port, 10));//this.configService.get<number>('port'));
   }
   
+  @Get("jwt")
+  getJWTSecretKey(): string {
+    return this.appService.getText(DOTENV.jwt_secret_key);//this.configService.get<number>('port'));
+  }
+
   @Get('testAuth')
   @UseGuards(JwtAuthGuard)
   @ApiBasicAuth()
   getTestAuth(): string {
-    return this.appService.getHello(parseInt(PORT, 10));
+    return this.appService.getHello(parseInt(DOTENV.port, 10));
   }
 }

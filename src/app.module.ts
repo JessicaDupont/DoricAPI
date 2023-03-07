@@ -5,23 +5,23 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './security/auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtModule } from '@nestjs/jwt';
-import { DB } from './shared/env';
+import { DOTENV } from './shared/dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserDTO } from './shared/dto/users/user.dto';
 
 @Module({
   imports: [
-    // ConfigModule.forRoot({
-    //   isGlobal: true, 
-    //   load: [env]
-    // }), 
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '/.env', '../.env', '../../.env']
+    }), 
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: DB.HOST,
-      port: DB.PORT,
-      username: DB.USERNAME,
-      password: DB.PASSWORD,
-      database: DB.NAME,
+      host: DOTENV.DB.host,
+      port: DOTENV.DB.port,
+      username: DOTENV.DB.username,
+      password: DOTENV.DB.password,
+      database: DOTENV.DB.name,
       entities: [__dirname + "/**/*.entity.{ts, js}"],
       autoLoadEntities: true,
       synchronize: true,
