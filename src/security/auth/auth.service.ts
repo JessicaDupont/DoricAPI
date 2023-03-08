@@ -17,7 +17,10 @@ export class AuthService {
   }
   getUserId(token: string): number {
     console.log("auth.service.ts/getuserid")
-    let res = this.jwtService.decode(token)
+    let tok = token.substring(7)//Bearer_ = 7
+    let res = this.jwtService.decode(tok)
+    // console.log("token decoded: ", res)
     return res.sub;
   }
+
 }

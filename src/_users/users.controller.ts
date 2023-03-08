@@ -3,7 +3,7 @@ import { Controller,
     Post, Get, Patch, Put, Delete, 
     Body, Headers, ValidationPipe, 
     NotImplementedException} from '@nestjs/common';
-import { ApiBasicAuth, ApiCreatedResponse, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from 'src/models/dto/users/create.user.dto';
 import { ConnexionUserDTO } from 'src/models/dto/users/connexion.user.dto';
@@ -39,7 +39,7 @@ export class UsersController {
 
     
     @Get('profil') 
-    @UseGuards(JwtAuthGuard) @ApiBasicAuth()
+    @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica-key")
     get1(
         @Headers() token : TokenDTO
     ){
@@ -48,7 +48,7 @@ export class UsersController {
     }
 
     @Get() 
-    @UseGuards(JwtAuthGuard) @ApiBasicAuth()
+    @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica-key")
     getAll(
         @Headers() token : TokenDTO
     ){
@@ -57,7 +57,7 @@ export class UsersController {
     }
 
     @Put() 
-    @UseGuards(JwtAuthGuard) @ApiBasicAuth()
+    @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica-key")
     update(){
         console.log("users.controller.ts/update");
         throw new NotImplementedException();
@@ -72,9 +72,9 @@ export class UsersController {
     }
 
     @Patch('changePassword') @ApiOperation({summary: "permet à l'utilisateur connecté de choisir un nouveau password"})
-    @UseGuards(JwtAuthGuard) @ApiBasicAuth()
+    @UseGuards(JwtAuthGuard) @ApiBearerAuth("dorica-key")
     patchPassword(
-        @Headers() token : TokenDTO,
+        @Headers("Authorization") token : string,
         @Body(ValidationPipe) password:ChangePasswordUserDTO
     ){
         console.log("users.controller.ts/patchPassword");
@@ -82,7 +82,7 @@ export class UsersController {
     }
 
     @Delete() 
-    @UseGuards(JwtAuthGuard) @ApiBasicAuth()
+    @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica-key")
     delete(
         @Headers() token : TokenDTO
     ){

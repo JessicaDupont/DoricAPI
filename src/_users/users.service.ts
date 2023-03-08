@@ -91,9 +91,9 @@ export class UsersService {
       message : SuccessMessage.PASSWORD_CHANGED
     }
   }
-  async changePassword(token : TokenDTO, user: ChangePasswordUserDTO) {
+  async changePassword(token : string, user: ChangePasswordUserDTO) {
     console.log("users.service.ts/changepassword");
-    let userId : number = this.authService.getUserId(token.token);
+    let userId : number = this.authService.getUserId(token);
     let userE : UserEntity = await this.getOneById(userId)
     if(!userE){
       throw new HttpException(ErrorMessage.USER_UNAUTHORIZED, ErrorStatus.USER_UNAUTHORIZED)

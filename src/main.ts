@@ -15,13 +15,20 @@ async function bootstrap() {
       "http://www.api.dorica.miss-ica.be", 
       "contact@jessicadupont.net"
     )
-    .addBasicAuth({
-      type: 'apiKey', 
-      name: 'dorica-key', 
-      in: 'header'
-    })
     .addTag('Users', "Utilisateurs de l'API")
     .addTag('Tests', "Tests en pagaille")
+    // .addBasicAuth({
+    //   type: 'apiKey', 
+    //   name: 'dorica-key', 
+    //   in: 'header'
+    // })
+    .addBearerAuth({
+      type: 'http', 
+      name: 'Bearer', 
+      bearerFormat: "Bearer",
+      in: 'Header',
+      scheme: "Bearer"
+    }, "dorica-key")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('', app, document);
