@@ -1,19 +1,19 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/security/auth/auth.service';
-import { ChangePasswordUserDTO } from 'src/shared/dto/users/changePassword.user.dto';
-import { ConnexionUserDTO } from 'src/shared/dto/users/connexion.user.dto';
-import { CreateUserDTO } from 'src/shared/dto/users/create.user.dto';
-import { TokenDTO } from 'src/shared/dto/users/token.dto';
-import { UserEntity } from 'src/shared/entities/user.entity';
+import { ChangePasswordUserDTO } from 'src/models/dto/users/changePassword.user.dto';
+import { ConnexionUserDTO } from 'src/models/dto/users/connexion.user.dto';
+import { CreateUserDTO } from 'src/models/dto/users/create.user.dto';
+import { TokenDTO } from 'src/models/dto/users/token.dto';
 import { ErrorMessage, ErrorStatus } from 'src/shared/utilities/error.fr.enum';
 import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.enum';
 import { Repository } from 'typeorm';
-import { UserDTO } from '../shared/dto/users/user.dto';
+import { UserDTO } from '../models/dto/users/user.dto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/shared/mail/mail.service';
 import { Messages } from 'src/shared/utilities/messages.fr';
-import { NewPasswordUserDTO } from 'src/shared/dto/users/newPassword.user.dto';
+import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
+import { UserEntity } from 'src/models/entities/bases/user.entity';
 
 @Injectable()
 export class UsersService {

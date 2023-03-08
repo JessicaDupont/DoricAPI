@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { LifeTime } from "./bases/lifeTime.entity";
+import { LifeTime } from "./lifeTime.entity";
 
 @Entity({name: "admin_api_users"})
 export class UserEntity extends LifeTime{

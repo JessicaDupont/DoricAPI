@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './security/auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './_users/users.module';
 import { DOTENV } from './shared/dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from './shared/mail/mail.module';

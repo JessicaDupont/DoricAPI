@@ -5,14 +5,14 @@ import { Controller,
     NotImplementedException} from '@nestjs/common';
 import { ApiBasicAuth, ApiCreatedResponse, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDTO } from 'src/shared/dto/users/create.user.dto';
-import { ConnexionUserDTO } from 'src/shared/dto/users/connexion.user.dto';
+import { CreateUserDTO } from 'src/models/dto/users/create.user.dto';
+import { ConnexionUserDTO } from 'src/models/dto/users/connexion.user.dto';
 import { ErrorMessage, ErrorStatus } from 'src/shared/utilities/error.fr.enum';
 import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.enum';
-import { TokenDTO } from 'src/shared/dto/users/token.dto';
-import { ChangePasswordUserDTO } from 'src/shared/dto/users/changePassword.user.dto';
+import { TokenDTO } from 'src/models/dto/users/token.dto';
+import { ChangePasswordUserDTO } from 'src/models/dto/users/changePassword.user.dto';
 import { JwtAuthGuard } from 'src/security/auth/jwt/jwt-auth.guard';
-import { NewPasswordUserDTO } from 'src/shared/dto/users/newPassword.user.dto';
+import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
 
 @ApiTags('Users')
 @Controller('users')
