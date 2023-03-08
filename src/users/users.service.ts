@@ -12,7 +12,8 @@ import { Repository } from 'typeorm';
 import { UserDTO } from '../shared/dto/users/user.dto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/shared/mail/mail.service';
-import { Message } from 'src/shared/utilities/message.fr.enum';
+import { Messages } from 'src/shared/utilities/messages.fr';
+import { NewPasswordUserDTO } from 'src/shared/dto/users/newPassword.user.dto';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +32,12 @@ export class UsersService {
     user.password = await bcrypt.hash(user.password, 10);
     let newUser = this.usersRepo.create(user);
     
-    await this.mailService.sendNoReply(user.email, Message.MAIL_SUBJECT_REGISTER, Message.MAIL_TEXT_REGISTER, Message.MAIL_HTML_REGISTER)
+    await this.mailService.sendNoReply(
+      user.email, 
+      Messages.getMailRegisterSubject(), 
+      Messages.getMailRegisterText(user.name, user.email, user.url), 
+      Messages.getMailRegisterHtml(user.name, user.email, user.url)
+    )
 
     this.usersRepo.save(newUser)
     .catch(_ => {
@@ -57,7 +63,35 @@ export class UsersService {
       throw new HttpException(ErrorMessage.USER_NOT_FOUND, ErrorStatus.USER_NOT_FOUND)
     }
   }
-  async changePassword(token : TokenDTO, password: ChangePasswordUserDTO) {
+  async newPassword(user: NewPasswordUserDTO) {
+    console.log("users.service.ts/newpassword");
+
+    if(!(await this.existEmail(user.email))){
+      throw new HttpException(ErrorMessage.USER_NOT_FOUND, ErrorStatus.USER_NOT_FOUND)
+    }
+
+    let userE : UserEntity = await this.getOneByEmail(user.email)
+    let newPassword = "changeME#"+(Math.floor(Math.random()*1000000));
+    userE.password = await bcrypt.hash(newPassword, 10);
+
+    this.usersRepo.save(userE)
+    .catch(_ => {
+      throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)
+    })
+
+    this.mailService.sendNoReply(
+      userE.email, 
+      Messages.getMailNewpasswordSubject(), 
+      Messages.getMailNewpasswordText(userE.name, userE.email, userE.url, newPassword), 
+      Messages.getMailNewpasswordHtml(userE.name, userE.email, userE.url, newPassword)
+    )
+
+    return {
+      statusCode : SuccessStatut.PASSWORD_CHANGED,
+      message : SuccessMessage.PASSWORD_CHANGED
+    }
+  }
+  async changePassword(token : TokenDTO, user: ChangePasswordUserDTO) {
     console.log("users.service.ts/changepassword");
     let userId : number = this.authService.getUserId(token.token);
     let userE : UserEntity = await this.getOneById(userId)
@@ -65,7 +99,7 @@ export class UsersService {
       throw new HttpException(ErrorMessage.USER_UNAUTHORIZED, ErrorStatus.USER_UNAUTHORIZED)
     }
 
-    userE.password = await bcrypt.hash(password.password, 10);
+    userE.password = await bcrypt.hash(user.password, 10);
     this.usersRepo.save(userE)
     .catch(_ => {
       throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)

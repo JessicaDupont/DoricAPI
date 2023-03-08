@@ -68,7 +68,7 @@ export class UsersController {
         @Body(ValidationPipe) user:NewPasswordUserDTO
     ){
         console.log("users.controller.ts/newPassword");
-        throw new NotImplementedException();
+        return this.usersService.newPassword(user)
     }
 
     @Patch('changePassword') @ApiOperation({summary: "permet à l'utilisateur connecté de choisir un nouveau password"})
