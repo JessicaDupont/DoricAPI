@@ -12,22 +12,21 @@ async function bootstrap() {
     .setVersion('1.0')
     .setContact(
       "Jessica Dupont", 
-      "http://alagaesiAPI.jessicadupont.net", 
+      "http://www.api.dorica.miss-ica.be", 
       "contact@jessicadupont.net"
     )
     .addBasicAuth({
       type: 'apiKey', 
-      name: 'dorica-API-key', 
+      name: 'dorica-key', 
       in: 'header'
     })
     .addTag('Users', "Utilisateurs de l'API")
     .addTag('Tests', "Tests en pagaille")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('', app, document);
 
   console.log("http://localhost:"+DOTENV.port);
-  console.log("Entrée api (swagger) : http://localhost:"+DOTENV.port+"/api");
   console.log("Documentation swagger.json : http://localhost:"+DOTENV.port+"/api-json");
   await app.listen(DOTENV.port);
 }
