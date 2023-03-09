@@ -120,6 +120,26 @@ export class UsersService {
     }
   }
 
+  async delete() {
+    console.log("users.service.ts/delete");
+    let userId : number = this.authService.getUserId();
+    let userE : UserEntity = await this.getOneById(userId)
+    if(!userE){
+      throw new HttpException(ErrorMessage.USER_UNAUTHORIZED, ErrorStatus.USER_UNAUTHORIZED)
+    }
+
+    let userD  = await this.usersRepo.softRemove(userE);
+    this.usersRepo.save(userD)
+    .catch(_ => {
+      throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)
+    })
+    return {
+      statusCode : SuccessStatut.USER_DELETED,
+      message : SuccessMessage.USER_DELETED
+    }
+
+  }
+
   private async getOneById(userId: number): Promise<UserEntity> {
     console.log("users.service.ts/getonebyID")
     return await this.usersRepo.findOneOrFail({

@@ -75,10 +75,10 @@ export class UsersController {
         return this.usersService.changePassword(password)
     }
 
-    @Delete() 
+    @Delete() @ApiOperation({summary: "supprimer votre compte utilisateur"})
     @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica_access")
     delete(){
         console.log("users.controller.ts/delete");
-        throw new NotImplementedException();
+        return this.usersService.delete();
     }
 }
