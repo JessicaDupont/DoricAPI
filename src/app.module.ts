@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './security/auth/auth.module';
 import { UsersModule } from './_users/users.module';
 import { DOTENV } from './shared/dotenv';
@@ -20,10 +18,8 @@ import { DatabaseModule } from './shared/database/database.module';
     MailModule,
   ],
   controllers: [
-    AppController
   ],
   providers: [
-    AppService,
     AuthModule 
   ],
 })

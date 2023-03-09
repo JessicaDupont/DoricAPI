@@ -58,4 +58,25 @@ export class UserDTO{
         example: "123stringSTRING/*-"
     })
     password: string;
+
+    @IsDate()
+    @ApiProperty({
+        required: false,
+        format: "date"
+    })
+    deleteAt : Date
+
+    @IsDate()
+    @ApiProperty({
+        required: false,
+        format: "date"
+    })
+    updateAt : Date
+
+    @IsDate()
+    @ApiProperty({
+        required: false,
+        format: "date"
+    })
+    createdAt : Date
 }

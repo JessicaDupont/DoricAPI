@@ -3,5 +3,5 @@ import { IsDate, IsEmail, IsInt, IsNotEmpty, IsString, IsUrl } from "class-valid
 
 export class TokenDTO{
     @IsString()
-    token: string;
+    dorica_access: string;
 }

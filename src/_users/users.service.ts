@@ -13,7 +13,9 @@ import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/shared/mail/mail.service';
 import { Messages } from 'src/shared/utilities/messages.fr';
 import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
-import { UserEntity } from 'src/models/entities/bases/user.entity';
+import { UserEntity } from 'src/models/entities/user.entity';
+import { User1DTO } from 'src/models/dto/users/user1.dto';
+import { UserMapper } from 'src/models/mappers/user.mapper';
 
 @Injectable()
 export class UsersService {
@@ -21,9 +23,9 @@ export class UsersService {
     @InjectRepository(UserEntity) private usersRepo: Repository<UserEntity>,
     private readonly authService: AuthService,
     private readonly mailService: MailService
-  ) {}
+    ) {}
     
-  async inscription(user : CreateUserDTO){
+    async inscription(user : CreateUserDTO){
     console.log("users.service.ts/create");
     if(await this.existEmail(user.email)){
       throw new HttpException(ErrorMessage.USER_EXIST, ErrorStatus.USER_EXIST)
@@ -37,9 +39,9 @@ export class UsersService {
       Messages.getMailRegisterSubject(), 
       Messages.getMailRegisterText(user.name, user.email, user.url), 
       Messages.getMailRegisterHtml(user.name, user.email, user.url)
-    )
-
-    this.usersRepo.save(newUser)
+      )
+      
+      this.usersRepo.save(newUser)
     .catch(_ => {
       throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)
     })
@@ -73,27 +75,35 @@ export class UsersService {
     let userE : UserEntity = await this.getOneByEmail(user.email)
     let newPassword = "changeME#"+(Math.floor(Math.random()*1000000));
     userE.password = await bcrypt.hash(newPassword, 10);
-
+    
     this.usersRepo.save(userE)
     .catch(_ => {
       throw new HttpException(ErrorMessage.ERROR_UNKNOW, ErrorStatus.ERROR_UNKNOW)
     })
-
+    
     this.mailService.sendNoReply(
       userE.email, 
       Messages.getMailNewpasswordSubject(), 
       Messages.getMailNewpasswordText(userE.name, userE.email, userE.url, newPassword), 
       Messages.getMailNewpasswordHtml(userE.name, userE.email, userE.url, newPassword)
-    )
-
-    return {
-      statusCode : SuccessStatut.PASSWORD_CHANGED,
+      )
+      
+      return {
+        statusCode : SuccessStatut.PASSWORD_CHANGED,
       message : SuccessMessage.PASSWORD_CHANGED
     }
   }
-  async changePassword(token : string, user: ChangePasswordUserDTO) {
+  async get1() : Promise<User1DTO>{
+    let userId : number = this.authService.getUserId();
+    let userE : UserEntity = await this.getOneById(userId);
+    if(!userE){
+      throw new HttpException(ErrorMessage.USER_UNAUTHORIZED, ErrorStatus.USER_UNAUTHORIZED)
+    }
+    return UserMapper.toUser1DTO(userE);
+  }
+  async changePassword(user: ChangePasswordUserDTO) {
     console.log("users.service.ts/changepassword");
-    let userId : number = this.authService.getUserId(token);
+    let userId : number = this.authService.getUserId();
     let userE : UserEntity = await this.getOneById(userId)
     if(!userE){
       throw new HttpException(ErrorMessage.USER_UNAUTHORIZED, ErrorStatus.USER_UNAUTHORIZED)

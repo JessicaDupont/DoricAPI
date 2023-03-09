@@ -16,7 +16,6 @@ async function bootstrap() {
       "contact@jessicadupont.net"
     )
     .addTag('Users', "Utilisateurs de l'API")
-    .addTag('Tests', "Tests en pagaille")
     // .addBasicAuth({
     //   type: 'apiKey', 
     //   name: 'dorica-key', 
@@ -28,7 +27,7 @@ async function bootstrap() {
       bearerFormat: "Bearer",
       in: 'Header',
       scheme: "Bearer"
-    }, "dorica-key")
+    }, "dorica_access")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('', app, document);

@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { LifeTime } from "./lifeTime.entity";
+import { LifeTime } from "./bases/lifeTime.entity";
 
 @Entity({name: "admin_api_users"})
 export class UserEntity extends LifeTime{
@@ -8,19 +8,6 @@ export class UserEntity extends LifeTime{
         name: "user_id"
     })
     userId: number;
-    
-    @Column({
-        type: "date",
-        name: "last_connexion"
-    })
-    lastConnexion: string;
-    
-    @Column({
-        type: "varchar",
-        length: 2000,
-        nullable: true
-    })
-    url: string;
     
     @Column({
         type: "varchar",
@@ -40,4 +27,17 @@ export class UserEntity extends LifeTime{
         length: 255
     })
     password: string;
+
+    @Column({
+        type: "varchar",
+        length: 2000,
+        nullable: true
+    })
+    url: string;
+
+    @Column({
+        type: "date",
+        name: "last_connexion"
+    })
+    lastConnexion: string;
 }
