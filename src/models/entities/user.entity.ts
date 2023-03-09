@@ -21,12 +21,26 @@ export class UserEntity extends LifeTime{
         unique: true
     })
     email: string;
+
+    @Column({
+        type: "boolean",
+        name: "validation_email",
+        default: false
+    })
+    validationEmail: boolean;
     
     @Column({
         type: "varchar",
         length: 255
     })
     password: string;
+
+    @Column({
+        type: "boolean",
+        name: "new_password",
+        default: true
+    })
+    newPassword: boolean;
 
     @Column({
         type: "varchar",

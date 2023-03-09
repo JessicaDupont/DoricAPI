@@ -12,6 +12,7 @@ import { JwtAuthGuard } from 'src/security/auth/jwt/jwt-auth.guard';
 import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
 import { TokenDTO } from 'src/models/dto/users/token.dto';
 import { User1DTO } from 'src/models/dto/users/user1.dto';
+import { ValidationUserDTO } from 'src/models/dto/users/validation.user.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -26,6 +27,14 @@ export class UsersController {
     ){
         console.log("users.controller.ts/create")
         return this.usersService.inscription(user);
+    }
+
+    @Post('ValidationEmail') @ApiOperation({summary: "Validez votre adresse mail grâce au code reçu"})
+    validateEmail(
+        @Body(ValidationPipe) user : ValidationUserDTO
+    ){
+        console.log("users.controller.ts/validationEmail");
+        return this.usersService.validationEmail(user);
     }
 
     @Post('connexion') @ApiOperation({summary: "connexion à l'API pour recevoir un token"})
