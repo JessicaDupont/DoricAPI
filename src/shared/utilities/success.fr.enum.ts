@@ -1,9 +1,9 @@
 export enum SuccessMessage{
-    USER_CREATED = "Utilisateur créé avec succès",
-    EMAIL_VALIDATE = "L'email est validé.",
-    USER_GRANTED = "Utilisateur autorisé",
-    PASSWORD_CHANGED = "Le mot de passe à bien été modifié",
-    USER_DELETED = "L'utilisateur a bien été supprimé"
+    USER_CREATED = "OLD - Utilisateur créé avec succès",
+    EMAIL_VALIDATE = "OLD - L'email est validé.",
+    USER_GRANTED = "OLD - Utilisateur autorisé",
+    PASSWORD_CHANGED = "OLD - Le mot de passe à bien été modifié",
+    USER_DELETED = "OLD - L'utilisateur a bien été supprimé"
 }
 
 export enum SuccessStatut{

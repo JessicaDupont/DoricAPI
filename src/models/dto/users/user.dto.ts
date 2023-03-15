@@ -14,7 +14,7 @@ export class UserDTO{
         required: false,
         format: "date"
     })
-    lastConnexion: string;
+    lastConnexion: Date;
     
     @IsUrl()
     @Length(10, 2000)

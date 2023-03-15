@@ -1,6 +1,12 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { LifeTime } from "./bases/lifeTime.entity";
 
+export enum UserRoleBasic {
+    ADMIN = "admin", //peut tout faire
+    EDITOR = "editor", //peut tout faire sauf la gestion des utilisateurs
+    USER = "user",//peut tout VOIR
+}
+
 @Entity({name: "admin_api_users"})
 export class UserEntity extends LifeTime{
     @PrimaryGeneratedColumn({
@@ -9,6 +15,13 @@ export class UserEntity extends LifeTime{
     })
     userId: number;
     
+    @Column({
+        type: "enum",
+        enum: UserRoleBasic,
+        default: UserRoleBasic.USER
+    })
+    role: UserRoleBasic;
+
     @Column({
         type: "varchar",
         length: 100
@@ -24,10 +37,10 @@ export class UserEntity extends LifeTime{
 
     @Column({
         type: "boolean",
-        name: "validation_email",
+        name: "is_validate",
         default: false
     })
-    validationEmail: boolean;
+    isValidate: boolean;
     
     @Column({
         type: "varchar",
@@ -37,10 +50,10 @@ export class UserEntity extends LifeTime{
 
     @Column({
         type: "boolean",
-        name: "new_password",
-        default: true
+        name: "is_restricted",
+        default: false
     })
-    newPassword: boolean;
+    isRestricted: boolean;
 
     @Column({
         type: "varchar",
@@ -53,5 +66,5 @@ export class UserEntity extends LifeTime{
         type: "date",
         name: "last_connexion"
     })
-    lastConnexion: string;
+    lastConnexion: Date;
 }

@@ -33,7 +33,7 @@ async function bootstrap() {
   SwaggerModule.setup('', app, document);
 
   console.log("http://localhost:"+DOTENV.port);
-  console.log("Documentation swagger.json : http://localhost:"+DOTENV.port+"/api-json");
+  console.log("Documentation swagger.json : http://localhost:"+DOTENV.port+"/-json");
   await app.listen(DOTENV.port);
 }
 bootstrap();

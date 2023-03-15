@@ -117,4 +117,23 @@ export class Messages{
         +"<p style=\"margin-left: 50%;\">Miss Ica</p>"
     }
     //#endregion
+
+    //#region Mail User Deleted
+    static getMailUserDeletedSubject() : string { 
+        return "Suppression de votre compte utilisateur pour DoricAPI";
+    }
+    static getMailUserDeletedText(name: string, email: string, url: string) : string {
+        return "Bonjour "+name
+            +"\nCe mail vous est envoyé suite à votre désinscription sur l'API de Dorica."
+            +"\n"
+            +"\nJ'espère que vous avez passé un bon mompent avec Dorica."
+            +"\nMiss Ica"
+    }
+    static getMailUserDeletedHtml(name: string, email: string, url: string) : string {
+        return "<h1>Bonjour "+name+"!</h1>"
+        +"<p>Ce mail vous est envoyé suite à votre désinscription sur l'API de Dorica.</p>"
+        +"<p>J'espère que vous avez passé un bon moment avec Dorica.</p>"
+        +"<p style=\"margin-left: 50%;\">Miss Ica</p>"
+    }
+    //#endregion
 }
