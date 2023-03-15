@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { UserDTO } from '../models/dto/users/user.dto';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/shared/mail/mail.service';
-import { Messages } from 'src/shared/utilities/messages.fr';
 import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
 import { UserEntity, UserRoleBasic } from 'src/models/entities/user.entity';
 import { User1DTO } from 'src/models/dto/users/user1.dto';
@@ -19,6 +18,7 @@ import { ValidationUserDTO } from 'src/models/dto/users/validation.user.dto';
 import { RoleAccess, UserRole } from 'src/security/auth/roles.auth';
 import { ResponsesHttp } from 'src/shared/utilities/languages/responsesHttp';
 import { StatusHttp } from 'src/shared/utilities/languages/statusHttp';
+import { UserContentMailFR } from 'src/shared/utilities/languages/fr/userContentMail';
 
 @Injectable()
 export class UsersService {
@@ -51,9 +51,9 @@ export class UsersService {
     let codeValidationEmail = Generators.getNumber(userE.userId, 9999, userE.email)
     await this.mailService.sendNoReply(
       userE.email,
-      Messages.getMailUserRegisterSubject(),
-      Messages.getMailUserRegisterText(userE.name, userE.email, codeValidationEmail),
-      Messages.getMailUserRegisterHtml(userE.name, userE.email, codeValidationEmail)
+      UserContentMailFR.register(userE, codeValidationEmail).subject,
+      UserContentMailFR.register(userE, codeValidationEmail).text,
+      UserContentMailFR.register(userE, codeValidationEmail).html,
     )
 
     //return
@@ -97,9 +97,9 @@ export class UsersService {
 
       await this.mailService.sendNoReply(
         user.email,
-        Messages.getMailUserValidateSubject(),
-        Messages.getMailUserValidateText(userE.name, userE.email, userE.url),
-        Messages.getMailUserValidateHtml(userE.name, userE.email, userE.url)
+        UserContentMailFR.validateEmail(userE).subject,
+        UserContentMailFR.validateEmail(userE).text,
+        UserContentMailFR.validateEmail(userE).html
       )
       return {
         statusCode: this.statHttp.userValidate(user.email),
@@ -148,9 +148,9 @@ export class UsersService {
 
     this.mailService.sendNoReply(
       userE.email,
-      Messages.getMailUserNewpasswordSubject(),
-      Messages.getMailUserNewpasswordText(userE.name, userE.email, userE.url, newPassword),
-      Messages.getMailUserNewpasswordHtml(userE.name, userE.email, userE.url, newPassword)
+      UserContentMailFR.newPassword(userE, newPassword).subject,
+      UserContentMailFR.newPassword(userE, newPassword).text,
+      UserContentMailFR.newPassword(userE, newPassword).html
     )
 
     return {
@@ -196,9 +196,9 @@ export class UsersService {
 
     this.mailService.sendNoReply(
       userE.email,
-      Messages.getMailUserDeletedSubject(),
-      Messages.getMailUserDeletedText(userE.name, userE.email, userE.url),
-      Messages.getMailUserDeletedHtml(userE.name, userE.email, userE.url)
+      UserContentMailFR.deleted(userE).subject,
+      UserContentMailFR.deleted(userE).text,
+      UserContentMailFR.deleted(userE).html
     )
     return {
       statusCode: this.statHttp.userDeleted(userE.email),

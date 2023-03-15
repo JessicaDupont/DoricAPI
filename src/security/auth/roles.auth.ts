@@ -1,6 +1,5 @@
 import { HttpException } from "@nestjs/common";
 import { UserEntity, UserRoleBasic } from "src/models/entities/user.entity";
-import { ErrorMessage, ErrorStatus } from "src/shared/utilities/error.fr.enum";
 import { ResponsesHttp } from "src/shared/utilities/languages/responsesHttp";
 import { StatusHttp } from "src/shared/utilities/languages/statusHttp";
 

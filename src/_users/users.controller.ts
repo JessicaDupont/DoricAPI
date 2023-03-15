@@ -12,8 +12,6 @@ import { NewPasswordUserDTO } from 'src/models/dto/users/newPassword.user.dto';
 import { TokenDTO } from 'src/models/dto/users/token.dto';
 import { User1DTO } from 'src/models/dto/users/user1.dto';
 import { ValidationUserDTO } from 'src/models/dto/users/validation.user.dto';
-import { ErrorMessage, ErrorStatus } from 'src/shared/utilities/error.fr.enum';
-import { SuccessMessage, SuccessStatut } from 'src/shared/utilities/success.fr.enum';
 
 @ApiTags('Users')
 @Controller('users')
