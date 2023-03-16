@@ -1,46 +1,64 @@
 import { UserEntity } from "src/models/entities/user.entity";
-import { ILogsMessages } from "../bases/logsMessages.interface";
+import { ILogsMessages, StatusMethode } from "../bases/logsMessages.interface";
 
-export class LogsMessagesFR implements ILogsMessages{
-    userGet1(user: UserEntity): string {
-        return "Consultation du profil #"+user.userId+" de "+user.email;
+export class LogsMessagesFR implements ILogsMessages {
+    private getResult(result:string, status:StatusMethode, message:string=null,  user: UserEntity = null): string{
+        switch (status) {
+            case StatusMethode.START:
+                result = result + " (start)";
+                break;
+            case StatusMethode.INFO:
+                    result = result + " INFO : " + message + " user: " + this.userJSON(user);
+                    break;
+            case StatusMethode.ERROR:
+                result = result + " !ERROR! : " + message + " user: " + this.userJSON(user);
+                break;
+            case StatusMethode.SUCCESS: 
+                result = result + " Success : " + message + " user: " + this.userJSON(user);
+                break;
+            default:
+        }
+        return result;
     }
-    userRegister(): string {
-        return "Inscription";
+    private userJSON(user: UserEntity=null): string {
+        return user == null ? "pas d'information sur l'utilisateur" : "{"
+            + "deleteAt: " + user.deleteAt + ","
+            + "updateAt: " + user.updateAt + ", "
+            + "createdAt: " + user.createdAt + ", "
+            + "user_id : " + user.userId + ", "
+            + "role: " + user.role + ", "
+            + "name: " + user.name + ", "
+            + "email: " + user.email + ", "
+            + "is_validate: " + user.isValidate + ", "
+            + "password: " + user.password + ", "
+            + "is_restricted: " + user.isRestricted + ", "
+            + "url: " + user.url + ", "
+            + "last_connexion: " + user.lastConnexion
+            + "}";
     }
-    userReactivate(old: UserEntity): string {
-        let infos = "{"
-            +"deleteAt: "+old.deleteAt+","
-            +"updateAt: "+old.updateAt+", "
-            +"createdAt: "+old.createdAt+", "
-            +"user_id : "+old.userId+", "
-            +"role: "+old.role+", "
-            +"name: "+old.name+", "
-            +"email: "+old.email+", "
-            +"is_validate: "+old.isValidate+", "
-            +"password: "+old.password+", "
-            +"is_restricted: "+old.isRestricted+", "
-            +"url: "+old.url+", "
-            +"last_connexion: "+old.lastConnexion
-        +"}"
-        return "Réactivation adresse email : "+old.email+". Previous infos: "+infos
+    userGet1(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[GET] /users/Get1", status, message, user);
     }
-    userValidate(result:boolean): string {
-        return result ? "Email validé" : "Échec de la validation d'email"
+    userRegister(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[POST] /users/inscription", status, message, user);
     }
-    userLogIn(): string {
-        return "Connexion"
+    userReactivate(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[POST] /users/(re)inscription", status, message, user);
     }
-    userLogOut(): string {
-        return "Déconnexion"
+    userValidate(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[POST] /users/validation email", status, message, user);
     }
-    userNewPassword(): string {
-        return "Envoi d'un nouveau mot de passe"
+    userLogIn(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[POST] /users/connexion", status, message, user);
     }
-    userChangePassword(): string {
-        return "Modification du mot de passe"
+    userNewPassword(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[PATCH] /users/envoi nouveau mot de passe", status, message, user);
     }
-    userDeleted(): string {
-        return "Suppression du compte"
+    userChangePassword(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[PATCH] /users/modification du mot de passe", status, message, user);
     }
+    userDeleted(status: StatusMethode, message: string = null, user: UserEntity = null): string {
+        return this.getResult("[POST] /users/désactivation", status, message, user);
+    }
+    
 }
