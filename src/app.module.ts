@@ -5,6 +5,7 @@ import { DOTENV } from './shared/dotenv';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailModule } from './shared/mail/mail.module';
 import { DatabaseModule } from './shared/database/database.module';
+import { LogsModule } from './middlewares/logs/logs.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DatabaseModule } from './shared/database/database.module';
     AuthModule, 
     UsersModule,
     MailModule,
+    LogsModule,
   ],
   controllers: [
   ],

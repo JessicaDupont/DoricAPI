@@ -1,6 +1,6 @@
 import { HttpException } from "@nestjs/common";
 import { UserEntity, UserRoleBasic } from "src/models/entities/user.entity";
-import { ResponsesHttp } from "src/shared/utilities/languages/responsesHttp";
+import { ResponsesHttpFactory } from "src/shared/utilities/languages/responsesHttp.factory";
 import { StatusHttp } from "src/shared/utilities/languages/statusHttp";
 
 export enum UserRole {
@@ -20,7 +20,7 @@ export class RoleAccess {
         if(!user.isValidate){role = UserRole.GHOST;}
         console.log("roles.auth.ts/isAuthorized - access : "+access+"/role : "+role)
 
-        const resHttp = new ResponsesHttp();
+        const resHttp = new ResponsesHttpFactory();
         const statHttp = new StatusHttp();
         switch (access) {
             case UserRole.ADMIN:

@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { LifeTime } from "./bases/lifeTime.entity";
+import { UserLogEntity } from "./log.entity";
 
 export enum UserRoleBasic {
     ADMIN = "admin", //peut tout faire
@@ -7,7 +8,7 @@ export enum UserRoleBasic {
     USER = "user",//peut tout VOIR
 }
 
-@Entity({name: "admin_api_users"})
+@Entity({name: "users"})
 export class UserEntity extends LifeTime{
     @PrimaryGeneratedColumn({
         type: "int",
@@ -67,4 +68,7 @@ export class UserEntity extends LifeTime{
         name: "last_connexion"
     })
     lastConnexion: Date;
+
+    @OneToMany(()=>UserLogEntity, (log)=>log.user)
+    logs : UserLogEntity[]
 }

@@ -5,10 +5,10 @@ export class StatusHttp implements IResponsesHttp{
     
     userYetExist(email: string) { return 409; }
     userNotFound() { return 404; }
-    userNotAdmin() { return 401; }
-    userNotEditor() { return 401; }
-    userRestricted() { return 401; }
-    userGhost(email: string) { return 401; }
+    userNotAdmin() { return 403; }
+    userNotEditor() { return 403; }
+    userRestricted() { return 403; }
+    userGhost(email: string) { return 403; }
     userUnauthorized() { return 401; }
     userCreated(email: string) { return 201; }
     userValidate(email: string) { return 200; }

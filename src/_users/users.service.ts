@@ -16,38 +16,47 @@ import { UserMapper } from 'src/models/mappers/user.mapper';
 import { Generators } from 'src/shared/utilities/generators';
 import { ValidationUserDTO } from 'src/models/dto/users/validation.user.dto';
 import { RoleAccess, UserRole } from 'src/security/auth/roles.auth';
-import { ResponsesHttp } from 'src/shared/utilities/languages/responsesHttp';
+import { ResponsesHttpFactory } from 'src/shared/utilities/languages/responsesHttp.factory';
 import { StatusHttp } from 'src/shared/utilities/languages/statusHttp';
 import { UserContentMailFR } from 'src/shared/utilities/languages/fr/userContentMail';
+import { LogsService } from 'src/middlewares/logs/logs.service';
+import { ILogsMessages } from 'src/shared/utilities/languages/bases/logsMessages.interface';
+import { IResponsesHttp } from 'src/shared/utilities/languages/bases/responsesHttp.interface';
+import { LogsMessagesFactory } from 'src/shared/utilities/languages/logsMessages.factory';
 
 @Injectable()
 export class UsersService {
-  resHttp: ResponsesHttp = new ResponsesHttp();
+  resHttp: IResponsesHttp = new ResponsesHttpFactory();
   statHttp: StatusHttp = new StatusHttp();
+  logMess: ILogsMessages = new LogsMessagesFactory();
 
   constructor(
     @InjectRepository(UserEntity) private usersRepo: Repository<UserEntity>,
     private readonly authService: AuthService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly logsService: LogsService
   ) { }
 
   async inscription(user: CreateUserDTO) {
     console.log("users.service.ts/inscription");
     await this.existEmailActif(user.email, true);//vérifie si email est actif dans la db
 
+    let create: boolean = false;
     let userN: UserEntity;
     if (await this.existEmail(user.email)) {//vérifie si email est déjà inscrit dans la db (mais inactif)
       userN = await this.reactivation(user);
     } else {
       userN = await this.create(user);
+      create = true;
     }
     await this.usersRepo.save(userN)
-    .catch(e => {
-      throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
-    })
+      .catch(e => {
+        throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
+      })
+    let userE = await this.getOneByEmail(user.email);
+    if (create) { this.logsService.add(userE, this.logMess.userRegister()) }
 
     //envoi mail pour validation email
-    let userE = await this.getOneByEmail(user.email);
     let codeValidationEmail = Generators.getNumber(userE.userId, 9999, userE.email)
     await this.mailService.sendNoReply(
       userE.email,
@@ -65,6 +74,7 @@ export class UsersService {
   private async reactivation(user: CreateUserDTO): Promise<UserEntity> {
     console.log("users.services.ts/reactivation")
     let userE = await this.getOneByEmail(user.email, true);
+    this.logsService.add(userE, this.logMess.userReactivate(userE));
     await this.usersRepo.recover(userE);
     userE.password = await bcrypt.hash(user.password, 10);
     userE.name = user.name;
@@ -80,9 +90,12 @@ export class UsersService {
   private async create(user: CreateUserDTO): Promise<UserEntity> {
     console.log("users.services.ts/create")
     user.password = await bcrypt.hash(user.password, 10);
-    return this.usersRepo.create(user);
+    let userE = await this.usersRepo.create(user);
+    // this.logsService.add(userE, this.logMess.userRegister());//pas d'userid
+    return userE;
   }
   async validationEmail(user: ValidationUserDTO) {
+    console.log("users.service.ts/validateemail", user)
     if (!(await this.existEmailActif(user.email))) {
       throw new HttpException(this.resHttp.userNotFound(), this.statHttp.userNotFound())
     }
@@ -92,9 +105,10 @@ export class UsersService {
       userE.isValidate = true;
       this.usersRepo.save(userE)
         .catch(e => {
+          this.logsService.add(userE, this.logMess.userValidate(false))
           throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
         })
-
+      this.logsService.add(userE, this.logMess.userValidate(true))
       await this.mailService.sendNoReply(
         user.email,
         UserContentMailFR.validateEmail(userE).subject,
@@ -120,12 +134,22 @@ export class UsersService {
     if (await bcrypt.compare(user.password, userE.password)) {
       console.log("users.service.ts/connexion : password ok");
       await this.patchLastConnexion(userE);
+      this.logsService.add(userE, this.logMess.userLogIn())
       let token: TokenDTO = await this.authService.login(userE);
       return token;
     } else {
       console.log("users.service.ts/connexion : password KO");
       throw new HttpException(this.resHttp.userNotFound(), this.statHttp.userNotFound())
     }
+  }
+  private async patchLastConnexion(user: UserDTO) {
+    user.lastConnexion = new Date();
+
+    await this.usersRepo.save(user)
+      .catch(_ => {
+        return false;
+      })
+    return true;
   }
   async newPassword(user: NewPasswordUserDTO) {
     console.log("users.service.ts/newpassword");
@@ -145,7 +169,7 @@ export class UsersService {
       .catch(e => {
         throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
       })
-
+    this.logsService.add(userE, this.logMess.userNewPassword())
     this.mailService.sendNoReply(
       userE.email,
       UserContentMailFR.newPassword(userE, newPassword).subject,
@@ -162,7 +186,7 @@ export class UsersService {
     let userId: number = this.authService.getUserId();
     let userE: UserEntity = await this.getOneById(userId);
     RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
-
+    this.logsService.add(userE, this.logMess.userGet1(userE))
     return UserMapper.toUser1DTO(userE);
   }
   async changePassword(user: ChangePasswordUserDTO) {
@@ -177,6 +201,7 @@ export class UsersService {
       .catch(e => {
         throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
       })
+    this.logsService.add(userE, this.logMess.userChangePassword())
     return {
       statusCode: this.statHttp.userPasswordChanged(),
       message: this.resHttp.userPasswordChanged()
@@ -193,7 +218,7 @@ export class UsersService {
       .catch(e => {
         throw new HttpException(this.resHttp.errorUnknow(e), this.statHttp.errorUnknow(e))
       })
-
+    this.logsService.add(userE, this.logMess.userDeleted())
     this.mailService.sendNoReply(
       userE.email,
       UserContentMailFR.deleted(userE).subject,
@@ -250,7 +275,7 @@ export class UsersService {
         throw new HttpException(this.resHttp.userNotFound(), this.statHttp.userNotFound())
       })
   }
-  private async getOneByEmail(email: string, withDeleted:boolean = false): Promise<UserEntity> {
+  private async getOneByEmail(email: string, withDeleted: boolean = false): Promise<UserEntity> {
     // console.log("users.services.ts/getonebyemail");
     return this.usersRepo.findOneOrFail({
       withDeleted: withDeleted,
@@ -261,14 +286,5 @@ export class UsersService {
       .catch((error) => {
         throw new HttpException(this.resHttp.userNotFound(), this.statHttp.userNotFound())
       })
-  }
-  private async patchLastConnexion(user: UserDTO) {
-    user.lastConnexion = new Date();
-
-    await this.usersRepo.save(user)
-      .catch(_ => {
-        return false;
-      })
-    return true;
   }
 }

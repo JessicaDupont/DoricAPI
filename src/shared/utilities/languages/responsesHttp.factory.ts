@@ -1,7 +1,7 @@
 import { IResponsesHttp } from "./bases/responsesHttp.interface";
 import { ResponsesHttpFR } from "./fr/responsesHttp";
 
-export class ResponsesHttp implements IResponsesHttp{
+export class ResponsesHttpFactory implements IResponsesHttp{
     "resHttp":IResponsesHttp = null;
 
     constructor(lang:string="fr") { 

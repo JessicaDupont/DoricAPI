@@ -45,7 +45,7 @@ export class UserContentMailFR {
     static validateEmail(user: User1DTO): IContentMail {
         return {
             subject:"DoricAPI: Bienvenue "+user.name, 
-            text:"Bonjour "+name
+            text:"Bonjour "+user.name
             +"\nCe mail vous est envoyé suite à la validation de votre email sur l'API de Dorica."
             +"\nDoricAPI vous fournit des informations sur le système de jeu Dorica."
             +"\nRéférez-vous à la documentation Swagger pour intégrer l'API à votre application"
