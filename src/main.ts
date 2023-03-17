@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { DOTENV } from './shared/dotenv';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,18 +10,30 @@ async function bootstrap() {
     .setTitle('DoricAPI')
     .setDescription('API fournissant les informations sur Dorica RPG')
     .setVersion('1.0')
-    .setContact("Jessica Dupont", "http://alagaesiAPI.jessicadupont.be", "contact@jessicadupont.be")
-    .addBasicAuth({type: 'apiKey', name: 'dorica-API-key', in: 'header'})
-    .addTag('Clients', "Clients de l'API")
-    .addTag('Tests', "Tests en pagaille")
+    .setContact(
+      "Jessica Dupont", 
+      "http://www.api.dorica.miss-ica.be", 
+      "contact@jessicadupont.net"
+    )
+    .addTag('Users', "Utilisateurs de l'API")
+    // .addBasicAuth({
+    //   type: 'apiKey', 
+    //   name: 'dorica-key', 
+    //   in: 'header'
+    // })
+    .addBearerAuth({
+      type: 'http', 
+      name: 'Bearer', 
+      bearerFormat: "Bearer",
+      in: 'Header',
+      scheme: "Bearer"
+    }, "dorica_access")
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('', app, document);
 
-  let port = process.env.PORT || process.env.PORT_LOCAL;
-  console.log("http://localhost:"+port);
-  console.log("Entrée api (swagger) : http://localhost:"+port+"/api");
-  console.log("Documentation swagger.json : http://localhost:"+port+"/api-json");
-  await app.listen(port);
+  console.log("http://localhost:"+DOTENV.port);
+  console.log("Documentation swagger.json : http://localhost:"+DOTENV.port+"/-json");
+  await app.listen(DOTENV.port);
 }
 bootstrap();
