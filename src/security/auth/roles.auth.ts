@@ -1,5 +1,7 @@
 import { HttpException } from "@nestjs/common";
+import { LogsService } from "src/middlewares/logs/logs.service";
 import { UserEntity, UserRoleBasic } from "src/models/entities/user.entity";
+import { ILogsMessages, StatusMethode } from "src/shared/utilities/languages/bases/logsMessages.interface";
 import { ResponsesHttpFactory } from "src/shared/utilities/languages/responsesHttp.factory";
 import { StatusHttp } from "src/shared/utilities/languages/statusHttp";
 
@@ -11,28 +13,42 @@ export enum UserRole {
     GHOST = "ghost"//doit valider son adresse email
 }
 export class RoleAccess {
-    static isAuthorized(user: UserEntity, accessMin: UserRole): boolean {
+    static isAuthorized(logS: LogsService, user: UserEntity, accessMin: UserRole): boolean {
         type Role = UserRole | UserRoleBasic;
-        const Role = {...UserRole, ...UserRoleBasic};
+        const Role = { ...UserRole, ...UserRoleBasic };
         let role: Role = user.role;
         let access: Role = accessMin;
-        if(user.isRestricted){role = UserRole.RESTRICTED;}
-        if(!user.isValidate){role = UserRole.GHOST;}
-        console.log("roles.auth.ts/isAuthorized - access : "+access+"/role : "+role)
+        if (user.isRestricted) { role = UserRole.RESTRICTED; }
+        if (!user.isValidate) { role = UserRole.GHOST; }
 
-        const resHttp = new ResponsesHttpFactory();
-        const statHttp = new StatusHttp();
+        const httpText = new ResponsesHttpFactory();
+        const httpCode = new StatusHttp();
         switch (access) {
             case UserRole.ADMIN:
                 switch (role) {
                     case Role.ADMIN:
                         return true;
                     case Role.RESTRICTED:
-                        throw new HttpException(resHttp.userRestricted(), statHttp.userRestricted())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userRestricted(),
+                            httpCode.userRestricted(),
+                            user);
                     case Role.GHOST:
-                        throw new HttpException(resHttp.userGhost(user.email), statHttp.userGhost(user.email))
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userGhost(user.email),
+                            httpCode.userGhost(user.email),
+                            user);
                     default:
-                        throw new HttpException(resHttp.userNotAdmin(), statHttp.userNotAdmin())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userNotAdmin(),
+                            httpCode.userNotAdmin(),
+                            user);
                 }
             case UserRole.EDITOR:
                 switch (role) {
@@ -40,11 +56,25 @@ export class RoleAccess {
                     case Role.EDITOR:
                         return true;
                     case Role.RESTRICTED:
-                        throw new HttpException(resHttp.userRestricted(), statHttp.userRestricted())
-                    case Role.GHOST:
-                        throw new HttpException(resHttp.userGhost(user.email), statHttp.userGhost(user.email))
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userRestricted(),
+                            httpCode.userRestricted(),
+                            user);
+                    case Role.GHOST: logS.addWithException(
+                        "RolesAccess/isAuthorized",
+                        StatusMethode.ERROR,
+                        httpText.userGhost(user.email),
+                        httpCode.userGhost(user.email),
+                        user);
                     default:
-                        throw new HttpException(resHttp.userNotEditor(), statHttp.userNotEditor())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userNotEditor(),
+                            httpCode.userNotEditor(),
+                            user);
                 }
             case UserRole.USER:
                 switch (role) {
@@ -53,11 +83,25 @@ export class RoleAccess {
                     case Role.USER:
                         return true;
                     case Role.RESTRICTED:
-                        throw new HttpException(resHttp.userRestricted(), statHttp.userRestricted())
-                    case Role.GHOST:
-                        throw new HttpException(resHttp.userGhost(user.email), statHttp.userGhost(user.email))
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userRestricted(),
+                            httpCode.userRestricted(),
+                            user);
+                    case Role.GHOST: logS.addWithException(
+                        "RolesAccess/isAuthorized",
+                        StatusMethode.ERROR,
+                        httpText.userGhost(user.email),
+                        httpCode.userGhost(user.email),
+                        user);
                     default:
-                        throw new HttpException(resHttp.userUnauthorized(), statHttp.userUnauthorized())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userUnauthorized(),
+                            httpCode.userUnauthorized(),
+                            user);
                 }
             case UserRole.RESTRICTED:
                 switch (role) {
@@ -67,9 +111,19 @@ export class RoleAccess {
                     case Role.RESTRICTED:
                         return true;
                     case Role.GHOST:
-                        throw new HttpException(resHttp.userGhost(user.email), statHttp.userGhost(user.email))
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userGhost(user.email),
+                            httpCode.userGhost(user.email),
+                            user);
                     default:
-                        throw new HttpException(resHttp.errorUnknow(), statHttp.errorUnknow())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userUnauthorized(),
+                            httpCode.userUnauthorized(),
+                            user);
                 }
             case UserRole.GHOST:
                 switch (role) {
@@ -80,7 +134,12 @@ export class RoleAccess {
                     case Role.GHOST:
                         return true;
                     default:
-                        throw new HttpException(resHttp.errorUnknow(), statHttp.errorUnknow())
+                        logS.addWithException(
+                            "RolesAccess/isAuthorized",
+                            StatusMethode.ERROR,
+                            httpText.userUnauthorized(),
+                            httpCode.userUnauthorized(),
+                            user);
                 }
             default: return true;
         }

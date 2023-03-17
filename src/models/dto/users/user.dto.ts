@@ -40,7 +40,8 @@ export class UserDTO{
     @ApiProperty({
         required: true,
         format: "email",
-        pattern: "^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+        pattern: "^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+        example: "jessica.dupont1990@gmail.com"
     })
     email: string;
     

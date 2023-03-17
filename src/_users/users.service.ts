@@ -22,13 +22,11 @@ import { UserContentMailFR } from 'src/shared/utilities/languages/fr/userContent
 import { LogsService } from 'src/middlewares/logs/logs.service';
 import { ILogsMessages, StatusMethode } from 'src/shared/utilities/languages/bases/logsMessages.interface';
 import { IResponsesHttp } from 'src/shared/utilities/languages/bases/responsesHttp.interface';
-// import { LogsMessagesFactory } from 'src/shared/utilities/languages/logsMessages.factory';
 
 @Injectable()
 export class UsersService {
   httpText: IResponsesHttp = new ResponsesHttpFactory();
   httpCode: StatusHttp = new StatusHttp();
-  //logM: ILogsMessages = new LogsMessagesFactory();
 
   constructor(
     @InjectRepository(UserEntity) private usersRepo: Repository<UserEntity>,
@@ -40,9 +38,28 @@ export class UsersService {
   ) { }
 
   async inscription(user: CreateUserDTO) {
-    this.logS.add(this.logM.userRegister(StatusMethode.START))
-    await this.existEmailActif(user.email, true);//vérifie si email est actif dans la db
+    this.logS.addWithException("users.service.ts/inscription", StatusMethode.START)
 
+    if (await this.existEmailActif(user.email)) {
+      this.logS.addWithException(
+        "users.service.ts/inscription",
+        StatusMethode.ERROR,
+        this.httpText.userYetExist(user.email),
+        this.httpCode.userYetExist(user.email))
+    }
+
+    await this.createToDB(user);
+    let userE = await this.getOneByEmail(user.email);
+    await this.mailToValidateEmail(userE);
+
+    return this.logS.addWithException(
+      "users.service.ts/inscription",
+      StatusMethode.SUCCESS,
+      this.httpText.userCreated(userE.email),
+      this.httpCode.userCreated(userE.email),
+      userE)
+  }
+  private async createToDB(user: CreateUserDTO) {
     let userN: UserEntity;
     if (await this.existEmail(user.email)) {//vérifie si email est déjà inscrit dans la db (mais inactif)
       userN = await this.reactivation(user);
@@ -51,31 +68,23 @@ export class UsersService {
     }
     await this.usersRepo.save(userN)
       .catch(e => {
-        this.logS.add(this.logM.userRegister(StatusMethode.ERROR, e))
-        throw new HttpException(this.httpText.errorUnknow(e), this.httpCode.errorUnknow(e))
+        this.logS.addWithException(
+          "users.service.ts/createToDB",
+          StatusMethode.ERROR,
+          this.httpText.errorUnknow(e),
+          this.httpCode.errorUnknow(e),
+          userN)
       })
-    let userE = await this.getOneByEmail(user.email);
-
-    //envoi mail pour validation email
-    let codeValidationEmail = Generators.getNumber(userE.userId, 9999, userE.email)
-    await this.mailS.sendNoReply(
-      userE.email,
-      UserContentMailFR.register(userE, codeValidationEmail).subject,
-      UserContentMailFR.register(userE, codeValidationEmail).text,
-      UserContentMailFR.register(userE, codeValidationEmail).html,
-    )
-
-    this.logS.add(this.logM.userRegister(StatusMethode.SUCCESS, this.httpText.userCreated(userE.email), userE), userE)
-    //return
-    return {
-      statusCode: this.httpCode.userCreated,
-      message: this.httpText.userCreated
-    }
   }
   private async reactivation(user: CreateUserDTO): Promise<UserEntity> {
-    this.logS.add(this.logM.userReactivate(StatusMethode.START))
     let userE = await this.getOneByEmail(user.email, true);
-    this.logS.add(this.logM.userReactivate(StatusMethode.INFO, "Anciennes données utilisateurs", userE), userE);
+    this.logS.addWithException(
+      "users.service.ts/reactivation",
+      StatusMethode.INFO,
+      UsersService.userJSON(userE),
+      null,
+      userE)
+
     await this.usersRepo.recover(userE);
     userE.password = await bcrypt.hash(user.password, 10);
     userE.name = user.name;
@@ -93,53 +102,95 @@ export class UsersService {
     let userE = await this.usersRepo.create(user);
     return userE;
   }
+  private async mailToValidateEmail(user: UserEntity) {
+    let codeValidationEmail = Generators.getNumber(user.userId, 9999, user.email)
+    return await this.mailS.sendNoReply(
+      user.email,
+      UserContentMailFR.register(user, codeValidationEmail).subject,
+      UserContentMailFR.register(user, codeValidationEmail).text,
+      UserContentMailFR.register(user, codeValidationEmail).html,
+    )
+  }
   async validationEmail(user: ValidationUserDTO) {
-    this.logS.add(this.logM.userValidate(StatusMethode.START))
-    if (!(await this.existEmailActif(user.email))) {
-      this.logS.add(this.logM.userValidate(StatusMethode.ERROR, this.httpText.userNotFound + " {email : " + user.email + "}"))
-      throw new HttpException(this.httpText.userNotFound(), this.httpCode.userNotFound())
-    }
+    this.logS.addWithException(
+      "users.service.ts/validationEmail",
+      StatusMethode.START)
 
+    if (!(await this.existEmailActif(user.email))) {
+      this.logS.addWithException(
+        "users.service.ts/validationEmail",
+        StatusMethode.ERROR,
+        this.httpText.userNotFound() + "{email: " + user.email + "}",
+        this.httpCode.userNotFound())
+    }
     let userE: UserEntity = await this.getOneByEmail(user.email)
-    if (user.code == Generators.getNumber(userE.userId, 999999, userE.email)) {
-      userE.isValidate = true;
-      this.usersRepo.save(userE)
-        .catch(e => {
-          this.logS.add(this.logM.userValidate(StatusMethode.ERROR, e, userE), userE)
-          throw new HttpException(this.httpText.errorUnknow(e), this.httpCode.errorUnknow(e))
-        })
-      await this.mailS.sendNoReply(
-        user.email,
-        UserContentMailFR.validateEmail(userE).subject,
-        UserContentMailFR.validateEmail(userE).text,
-        UserContentMailFR.validateEmail(userE).html
-      )
-      this.logS.add(this.logM.userValidate(StatusMethode.SUCCESS, this.httpText.userValidate(user.email), userE), userE)
-      return {
-        statusCode: this.httpCode.userValidate(user.email),
-        message: this.httpText.userValidate(user.email)
+    if (!(userE.isValidate)) {
+
+      if (user.code == Generators.getNumber(userE.userId, 999999, userE.email)) {
+        userE.isValidate = true;
+        this.usersRepo.save(userE)
+          .catch(e => {
+            this.logS.addWithException(
+              "users.service.ts/validationEmail",
+              StatusMethode.ERROR,
+              this.httpText.errorUnknow(e),
+              this.httpCode.errorUnknow(e),
+              userE);
+          })
+
+        await this.mailToConfirmValidationEmail(userE);
       }
     }
+    
+    return this.logS.addWithException(
+      "users.service.ts/validationEmail",
+      StatusMethode.SUCCESS,
+      this.httpText.userValidate(userE.email),
+      this.httpCode.userValidate(userE.email),
+      userE)
+  }
+  private async mailToConfirmValidationEmail(user: UserEntity) {
+    await this.mailS.sendNoReply(
+      user.email,
+      UserContentMailFR.validateEmail(user).subject,
+      UserContentMailFR.validateEmail(user).text,
+      UserContentMailFR.validateEmail(user).html
+    )
   }
   async connexion(user: ConnexionUserDTO): Promise<TokenDTO> {
-    this.logS.add(this.logM.userLogIn(StatusMethode.START))
+    this.logS.addWithException(
+      "users.service.ts/connexion",
+      StatusMethode.START)
+
     if (!(await this.existEmailActif(user.email))) {
-      this.logS.add(this.logM.userLogIn(StatusMethode.ERROR, this.httpText.userNotFound+" {email : "+user.email+"}"))
-      throw new HttpException(this.httpText.userNotFound(), this.httpCode.userNotFound())
+      this.logS.addWithException(
+        "users.service.ts/connexion",
+        StatusMethode.ERROR,
+        this.httpText.userNotFound() + " {" + user.email + "}",
+        this.httpCode.userNotFound())
     }
-
     let userE: UserEntity = await this.getOneByEmail(user.email)
-    RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
+    RoleAccess.isAuthorized(this.logS, userE, UserRole.RESTRICTED)
 
-    if (await bcrypt.compare(user.password, userE.password)) {
-      await this.patchLastConnexion(userE);
-      this.logS.add(this.logM.userLogIn(StatusMethode.SUCCESS, "Connexion établie", userE), userE)
-      let token: TokenDTO = await this.authS.login(userE);
-      return token;
-    } else {
-      this.logS.add(this.logM.userLogIn(StatusMethode.ERROR, this.httpText.userNotFound+" (password KO)"), userE)
-      throw new HttpException(this.httpText.userNotFound(), this.httpCode.userNotFound())
+    if (!(await bcrypt.compare(user.password, userE.password))) {
+      throw this.logS.addWithException(
+        "users.service.ts/connexion",
+        StatusMethode.ERROR,
+        this.httpText.userNotFound() + "[Erreur password]",
+        this.httpCode.userNotFound(),
+        userE)
     }
+    await this.patchLastConnexion(userE);
+
+    this.logS.addWithException(
+      "users.service.ts/connexion",
+      StatusMethode.INFO,
+      this.httpText.userAuthorized(),
+      this.httpCode.userAuthorized(),
+      userE)
+
+    let token: TokenDTO = await this.authS.login(userE);
+    return token;
   }
   private async patchLastConnexion(user: UserDTO) {
     user.lastConnexion = new Date();
@@ -151,90 +202,136 @@ export class UsersService {
     return true;
   }
   async newPassword(user: NewPasswordUserDTO) {
-    this.logS.add(this.logM.userNewPassword(StatusMethode.START))
+    this.logS.addWithException(
+      "users.services.ts/newPassword",
+      StatusMethode.START
+    )
+
     if (!(await this.existEmailActif(user.email))) {
-      this.logS.add(this.logM.userNewPassword(StatusMethode.ERROR, this.httpText.userNotFound+" {email : "+user.email+"}"))
-      throw new HttpException(this.httpText.userNotFound(), this.httpCode.userNotFound())
+      this.logS.addWithException(
+        "users.services.ts/newPassword",
+        StatusMethode.ERROR,
+        this.httpText.userNotFound() + "{email: " + user.email + "}",
+        this.httpCode.userNotFound()
+      )
     }
-
     let userE: UserEntity = await this.getOneByEmail(user.email)
-    RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
+    RoleAccess.isAuthorized(this.logS, userE, UserRole.RESTRICTED)
 
-    let newPassword = "changeME#" + Generators.getNumber(100000, 999999);
-    console.log(newPassword);
-    userE.password = await bcrypt.hash(newPassword, 10);
-    userE.isRestricted = true;
+    let newPassword = await this.updatePassword(userE);
+    this.mailWithNewPassword(userE, newPassword);
 
-    this.usersRepo.save(userE)
-      .catch(e => {
-        this.logS.add(this.logM.userNewPassword(StatusMethode.ERROR, e, userE), userE)
-        throw new HttpException(this.httpText.errorUnknow(e), this.httpCode.errorUnknow(e))
-      })
-      this.mailS.sendNoReply(
-        userE.email,
-        UserContentMailFR.newPassword(userE, newPassword).subject,
-        UserContentMailFR.newPassword(userE, newPassword).text,
-        UserContentMailFR.newPassword(userE, newPassword).html
-        )
-        
-        this.logS.add(this.logM.userNewPassword(StatusMethode.SUCCESS, this.httpText.userPasswordChanged(), userE), userE)
-    return {
-      statusCode: this.httpCode.userPasswordChanged(),
-      message: this.httpText.userPasswordChanged()
+    return this.logS.addWithException(
+      "users.service/ts/newPassword",
+      StatusMethode.SUCCESS,
+      this.httpText.userPasswordChanged(),
+      this.httpCode.userPasswordChanged(),
+      userE
+    )
+  }
+  private async updatePassword(user: UserEntity, password: string = null): Promise<string> {
+    if (password == null) {
+      password = "changeME#" + Generators.getNumber(100000, 999999);
     }
+    user.password = await bcrypt.hash(password, 10);
+    user.isRestricted = true;
+
+    this.usersRepo.save(user)
+      .catch(e => {
+        this.logS.addWithException(
+          "users.service.ts/updatePassword",
+          StatusMethode.ERROR,
+          this.httpText.errorUnknow(e),
+          this.httpCode.errorUnknow(e),
+          user
+        )
+      })
+
+    return password;
+  }
+  private mailWithNewPassword(user: UserEntity, newPassword: string) {
+    this.mailS.sendNoReply(
+      user.email,
+      UserContentMailFR.newPassword(user, newPassword).subject,
+      UserContentMailFR.newPassword(user, newPassword).text,
+      UserContentMailFR.newPassword(user, newPassword).html
+    )
   }
   async get1(): Promise<User1DTO> {
-    this.logS.add(this.logM.userGet1(StatusMethode.START))
-    let userId: number = this.authS.getUserId();
-    let userE: UserEntity = await this.getOneById(userId);
-    RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
-    this.logS.add(this.logM.userGet1(StatusMethode.SUCCESS, "Utilisateur trouvé" ,userE), userE)
+    this.logS.addWithException(
+      "users.service.ts/get1",
+      StatusMethode.START
+    )
+
+    let userE: UserEntity = await this.getOneById(this.authS.getUserId());
+    RoleAccess.isAuthorized(this.logS, userE, UserRole.RESTRICTED)
+
+    this.logS.addWithException(
+      "users.service.ts/get1",
+      StatusMethode.INFO,
+      this.httpText.userAuthorized(),
+      this.httpCode.userAuthorized(),
+      userE
+    )
     return UserMapper.toUser1DTO(userE);
   }
   async changePassword(user: ChangePasswordUserDTO) {
-    this.logS.add(this.logM.userChangePassword(StatusMethode.START))
-    let userId: number = this.authS.getUserId();
-    let userE: UserEntity = await this.getOneById(userId)
-    RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
+    this.logS.addWithException(
+      "users.service.ts/changePassword",
+      StatusMethode.START
+    )
 
-    userE.password = await bcrypt.hash(user.password, 10);
-    userE.isRestricted = false;
-    this.usersRepo.save(userE)
-      .catch(e => {
-        this.logS.add(this.logM.userChangePassword(StatusMethode.ERROR, e, userE), userE)
-        throw new HttpException(this.httpText.errorUnknow(e), this.httpCode.errorUnknow(e))
-      })
-      this.logS.add(this.logM.userChangePassword(StatusMethode.SUCCESS, this.httpText.userPasswordChanged(), userE), userE)
-    return {
-      statusCode: this.httpCode.userPasswordChanged(),
-      message: this.httpText.userPasswordChanged()
-    }
+    let userE: UserEntity = await this.getOneById(this.authS.getUserId())
+    RoleAccess.isAuthorized(this.logS, userE, UserRole.RESTRICTED)
+
+    await this.updatePassword(userE, user.password)
+
+    return this.logS.addWithException(
+      "users.service.ts/changePassword",
+      StatusMethode.SUCCESS,
+      this.httpText.userPasswordChanged(),
+      this.httpCode.userPasswordChanged(),
+      userE
+    )
   }
   async delete() {
-    this.logS.add(this.logM.userDeleted(StatusMethode.START))
-    let userId: number = this.authS.getUserId();
-    let userE: UserEntity = await this.getOneById(userId)
-    RoleAccess.isAuthorized(userE, UserRole.RESTRICTED)
+    this.logS.addWithException(
+      "users.service.ts/delete",
+      StatusMethode.START
+    )
+
+    let userE: UserEntity = await this.getOneById(this.authS.getUserId())
+    RoleAccess.isAuthorized(this.logS, userE, UserRole.RESTRICTED)
 
     let userD = await this.usersRepo.softRemove(userE);
     this.usersRepo.save(userD)
       .catch(e => {
-        this.logS.add(this.logM.userDeleted(StatusMethode.ERROR, e, userE), userE)
-        throw new HttpException(this.httpText.errorUnknow(e), this.httpCode.errorUnknow(e))
+        this.logS.addWithException(
+          "users.service.ts/delete",
+          StatusMethode.ERROR,
+          this.httpText.errorUnknow(e),
+          this.httpCode.errorUnknow(e),
+          userE
+        )
       })
 
-    this.mailS.sendNoReply(
-      userE.email,
-      UserContentMailFR.deleted(userE).subject,
-      UserContentMailFR.deleted(userE).text,
-      UserContentMailFR.deleted(userE).html
-    )
-    this.logS.add(this.logM.userDeleted(StatusMethode.START, this.httpText.userDeleted(userE.email), userE), userE)
-    return {
-      statusCode: this.httpCode.userDeleted(userE.email),
-      message: this.httpText.userDeleted(userE.email)
-    }
+    this.mailToDelete(userE);
 
+    return this.logS.addWithException(
+      "users.service.ts/delete",
+      StatusMethode.SUCCESS,
+      this.httpText.userDeleted(userE.email),
+      this.httpCode.userDeleted(userE.email),
+      userE
+    )
+  }
+  private mailToDelete(user: UserEntity) {
+    this.mailS.sendNoReply(
+      user.email,
+      UserContentMailFR.deleted(user).subject,
+      UserContentMailFR.deleted(user).text,
+      UserContentMailFR.deleted(user).html
+    )
   }
 
   /**
@@ -291,5 +388,21 @@ export class UsersService {
       .catch((error) => {
         throw new HttpException(this.httpText.userNotFound(), this.httpCode.userNotFound())
       })
+  }
+  static userJSON(user: UserEntity = null): string {
+    return user == null ? "pas d'information sur l'utilisateur" : "{"
+      + "deleteAt: " + user.deleteAt + ","
+      + "updateAt: " + user.updateAt + ", "
+      + "createdAt: " + user.createdAt + ", "
+      + "user_id : " + user.userId + ", "
+      + "role: " + user.role + ", "
+      + "name: " + user.name + ", "
+      + "email: " + user.email + ", "
+      + "is_validate: " + user.isValidate + ", "
+      + "password: " + user.password + ", "
+      + "is_restricted: " + user.isRestricted + ", "
+      + "url: " + user.url + ", "
+      + "last_connexion: " + user.lastConnexion
+      + "}";
   }
 }

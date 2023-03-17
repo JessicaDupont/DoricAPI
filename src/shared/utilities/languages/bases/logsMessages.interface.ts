@@ -1,11 +1,17 @@
+import { LogsService } from "src/middlewares/logs/logs.service";
 import { UserEntity } from "src/models/entities/user.entity";
+import { RoleAccess } from "src/security/auth/roles.auth";
 export enum StatusMethode{
     START,
     INFO,
-    ERROR, 
+    ERROR,
     SUCCESS
 }
 export interface ILogsMessages{
+    userUnAuthorized(
+        message:string,
+        user: UserEntity
+    ): string;
     userGet1(
         status:StatusMethode, 
         message?:string,
