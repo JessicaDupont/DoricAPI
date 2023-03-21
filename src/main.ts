@@ -15,7 +15,8 @@ async function bootstrap() {
       "http://www.api.dorica.miss-ica.be", 
       "contact@jessicadupont.net"
     )
-    .addTag('Users', "Utilisateurs de l'API")
+    .addTag('Clients', "Liste des FRONT utilisant l'API")
+    .addTag('Users', "Personnes utilisant l'API")
     // .addBasicAuth({
     //   type: 'apiKey', 
     //   name: 'dorica-key', 
