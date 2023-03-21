@@ -1,4 +1,4 @@
-import { LogsService } from "src/middlewares/logs/logs.service";
+import { LogsService } from "src/middlewares/log/logs.service";
 import { UserEntity } from "src/models/entities/user.entity";
 import { RoleAccess } from "src/security/auth/roles.auth";
 import { ILogsMessages, StatusMethode } from "../bases/logsMessages.interface";

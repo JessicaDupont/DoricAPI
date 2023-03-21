@@ -1,5 +1,5 @@
 import { HttpException } from "@nestjs/common";
-import { LogsService } from "src/middlewares/logs/logs.service";
+import { LogsService } from "src/middlewares/log/logs.service";
 import { UserEntity, UserRoleBasic } from "src/models/entities/user.entity";
 import { ILogsMessages, StatusMethode } from "src/shared/utilities/languages/bases/logsMessages.interface";
 import { ResponsesHttpFactory } from "src/shared/utilities/languages/responsesHttp.factory";

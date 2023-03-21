@@ -19,7 +19,7 @@ import { RoleAccess, UserRole } from 'src/security/auth/roles.auth';
 import { ResponsesHttpFactory } from 'src/shared/utilities/languages/responsesHttp.factory';
 import { StatusHttp } from 'src/shared/utilities/languages/statusHttp';
 import { UserContentMailFR } from 'src/shared/utilities/languages/fr/userContentMail';
-import { LogsService } from 'src/middlewares/logs/logs.service';
+import { LogsService } from 'src/middlewares/log/logs.service';
 import { ILogsMessages, StatusMethode } from 'src/shared/utilities/languages/bases/logsMessages.interface';
 import { IResponsesHttp } from 'src/shared/utilities/languages/bases/responsesHttp.interface';
 
