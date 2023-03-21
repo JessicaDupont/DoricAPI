@@ -8,6 +8,7 @@ import { DatabaseModule } from './shared/database/database.module';
 import { LogsModule } from './middlewares/logs/logs.module';
 import { LogsMessagesFR } from './shared/utilities/languages/fr/logsMessages';
 import { ILogsMessages } from './shared/utilities/languages/bases/logsMessages.interface';
+import { ClientsModule } from './_clients/_clients.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ILogsMessages } from './shared/utilities/languages/bases/logsMessages.i
     UsersModule,
     MailModule,
     LogsModule,
+    ClientsModule,
   ],
   controllers: [
   ],

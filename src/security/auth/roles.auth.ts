@@ -13,7 +13,7 @@ export enum UserRole {
     GHOST = "ghost"//doit valider son adresse email
 }
 export class RoleAccess {
-    static isAuthorized(logS: LogsService, user: UserEntity, accessMin: UserRole): boolean {
+    static isAuthorized(ip:string, logS: LogsService, user: UserEntity, accessMin: UserRole): boolean {
         type Role = UserRole | UserRoleBasic;
         const Role = { ...UserRole, ...UserRoleBasic };
         let role: Role = user.role;
@@ -30,25 +30,28 @@ export class RoleAccess {
                         return true;
                     case Role.RESTRICTED:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userRestricted(),
                             httpCode.userRestricted(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                     case Role.GHOST:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userGhost(user.email),
                             httpCode.userGhost(user.email),
-                            user);
+                            "{user_id: "+user.userId+"}");
                     default:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userNotAdmin(),
                             httpCode.userNotAdmin(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                 }
             case UserRole.EDITOR:
                 switch (role) {
@@ -57,24 +60,28 @@ export class RoleAccess {
                         return true;
                     case Role.RESTRICTED:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userRestricted(),
                             httpCode.userRestricted(),
-                            user);
-                    case Role.GHOST: logS.addWithException(
+                            "{user_id: "+user.userId+"}");
+                    case Role.GHOST: 
+                        logS.addWithException(
+                        ip,
                         "RolesAccess/isAuthorized",
                         StatusMethode.ERROR,
                         httpText.userGhost(user.email),
                         httpCode.userGhost(user.email),
-                        user);
+                        "{user_id: "+user.userId+"}");
                     default:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userNotEditor(),
                             httpCode.userNotEditor(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                 }
             case UserRole.USER:
                 switch (role) {
@@ -84,24 +91,28 @@ export class RoleAccess {
                         return true;
                     case Role.RESTRICTED:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userRestricted(),
                             httpCode.userRestricted(),
-                            user);
-                    case Role.GHOST: logS.addWithException(
+                            "{user_id: "+user.userId+"}");
+                    case Role.GHOST: 
+                    logS.addWithException(
+                        ip,
                         "RolesAccess/isAuthorized",
                         StatusMethode.ERROR,
                         httpText.userGhost(user.email),
                         httpCode.userGhost(user.email),
-                        user);
+                        "{user_id: "+user.userId+"}");
                     default:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userUnauthorized(),
                             httpCode.userUnauthorized(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                 }
             case UserRole.RESTRICTED:
                 switch (role) {
@@ -112,18 +123,20 @@ export class RoleAccess {
                         return true;
                     case Role.GHOST:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userGhost(user.email),
                             httpCode.userGhost(user.email),
-                            user);
+                            "{user_id: "+user.userId+"}");
                     default:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userUnauthorized(),
                             httpCode.userUnauthorized(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                 }
             case UserRole.GHOST:
                 switch (role) {
@@ -135,11 +148,12 @@ export class RoleAccess {
                         return true;
                     default:
                         logS.addWithException(
+                            ip,
                             "RolesAccess/isAuthorized",
                             StatusMethode.ERROR,
                             httpText.userUnauthorized(),
                             httpCode.userUnauthorized(),
-                            user);
+                            "{user_id: "+user.userId+"}");
                 }
             default: return true;
         }

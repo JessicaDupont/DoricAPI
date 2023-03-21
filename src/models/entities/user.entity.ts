@@ -69,6 +69,6 @@ export class UserEntity extends LifeTime{
     })
     lastConnexion: Date;
 
-    @OneToMany(()=>UserLogEntity, (log)=>log.user)
-    logs : UserLogEntity[]
+    // @OneToMany(()=>UserLogEntity, (log)=>log.user)
+    // logs : UserLogEntity[]
 }

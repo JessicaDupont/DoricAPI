@@ -1,7 +1,8 @@
 import { Controller, UseGuards, 
     Post, Get, Patch, Put, Delete, 
     Body, ValidationPipe, 
-    NotImplementedException} from '@nestjs/common';
+    NotImplementedException,
+    Ip} from '@nestjs/common';
 import { ApiBasicAuth, ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from 'src/models/dto/users/create.user.dto';
@@ -22,25 +23,25 @@ export class UsersController {
     ){}
 
     @Post('inscription') @ApiOperation({summary: "inscription en vue d'utiliser l'API"})
-    create(@Body(ValidationPipe) user:CreateUserDTO){
-        return this.usersService.inscription(user);
+    create(@Ip() ip:string, @Body(ValidationPipe) user:CreateUserDTO){
+        return this.usersService.inscription(ip, user);
     }
 
     @Post('validationEmail') @ApiOperation({summary: "Validez votre adresse mail grâce au code reçu"})
-    validateEmail(@Body(ValidationPipe) user : ValidationUserDTO){
-        return this.usersService.validationEmail(user);
+    validateEmail(@Ip() ip:string, @Body(ValidationPipe) user : ValidationUserDTO){
+        return this.usersService.validationEmail(ip, user);
     }
 
     @Post('connexion') @ApiOperation({summary: "connexion à l'API pour recevoir un token"})
-    connect(@Body(ValidationPipe) user:ConnexionUserDTO) : Promise<TokenDTO>{
-        return this.usersService.connexion(user);
+    connect(@Ip() ip:string, @Body(ValidationPipe) user:ConnexionUserDTO) : Promise<TokenDTO>{
+        return this.usersService.connexion(ip, user);
     }
 
     
     @Get('myProfil') @ApiOperation({summary: "voir votre profil utilisateur"})
     @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica_access")
-    async get1() : Promise<User1DTO>{
-        return await this.usersService.get1();
+    async get1(@Ip() ip:string, ) : Promise<User1DTO>{
+        return await this.usersService.get1(ip);
     }
 
     // @Get()
@@ -58,19 +59,24 @@ export class UsersController {
     // }
 
     @Patch('newPassword') @ApiOperation({summary: "envoi un nouveau password par email"})
-    newPassword(@Body(ValidationPipe) user:NewPasswordUserDTO){
-        return this.usersService.newPassword(user)
+    newPassword(@Ip() ip:string, @Body(ValidationPipe) user:NewPasswordUserDTO){
+        return this.usersService.newPassword(ip, user)
     }
 
     @Patch('changePassword') @ApiOperation({summary: "permet à l'utilisateur connecté de choisir un nouveau password"})
     @UseGuards(JwtAuthGuard) @ApiBearerAuth("dorica_access")
-    changePassword(@Body(ValidationPipe) password:ChangePasswordUserDTO){
-        return this.usersService.changePassword(password)
+    changePassword(@Ip() ip:string, @Body(ValidationPipe) password:ChangePasswordUserDTO){
+        return this.usersService.changePassword(ip, password)
     }
+
+    // @Patch('upgrade') @ApiOperation({summary: "Permet de mettre un rôle à un utilisateur."})
+    // upgrade(@Ip() ip:string, @Body(ValidationPipe) user:userUpgradeDTO){
+    //     return this.usersService.upgrade(ip)
+    // }
 
     @Delete() @ApiOperation({summary: "supprimer votre compte utilisateur"})
     @UseGuards(JwtAuthGuard)  @ApiBearerAuth("dorica_access")
-    delete(){
-        return this.usersService.delete();
+    delete(@Ip() ip:string, ){
+        return this.usersService.softDelete(ip);
     }
 }
